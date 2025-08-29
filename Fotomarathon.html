@@ -20,7 +20,6 @@
     button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; background-color: #4CAF50; color: white; cursor: pointer; }
     button:hover { background-color: #45a049; }
     #pauseTimerDisplay { color: red; }
-    .hidden { display: none; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
@@ -125,11 +124,13 @@
     }
 
     function startMainTimer(){
-      checklist.classList.remove('hidden');
-      checklistProgress.classList.remove('hidden');
-      if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
+      if(localStorage.getItem('timerStarted') === 'true') return;
+      localStorage.setItem('timerStarted', 'true');
+      startBtn.disabled = true;
+
+      if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart', Date.now());
       clearInterval(timer);
-      timer=setInterval(()=>{
+      timer = setInterval(()=>{
         const elapsed = Date.now()-localStorage.getItem('timerStart');
         mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
         if(mainRemaining<=0) {
@@ -138,6 +139,7 @@
           localStorage.removeItem('pausedOnce');
           localStorage.removeItem('timerStart');
           localStorage.removeItem('pauseStart');
+          localStorage.removeItem('timerStarted');
           pauseBtn.disabled=false;
         }
         timerDisplay.innerText=formatTime(mainRemaining);
@@ -155,9 +157,9 @@
       localStorage.setItem('pauseStart',Date.now());
       pauseBtn.disabled=true;
 
-      // Göm checklist och progress under pausen
-      checklist.classList.add('hidden');
-      checklistProgress.classList.add('hidden');
+      // Göm kryssrutor och progress under pausen
+      checklist.style.display='none';
+      checklistProgress.style.display='none';
 
       let pauseRemaining = pauseDuration/1000;
       pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
@@ -167,6 +169,8 @@
         if(pauseRemaining<=0){
           clearInterval(pauseTimer);
           pauseTimerDisplay.innerText='';
+          checklist.style.display='block';
+          checklistProgress.style.display='block';
           startMainTimer();
         } else {
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
@@ -180,6 +184,8 @@
     pauseBtn.addEventListener('touchstart', function(e){ e.preventDefault(); startPause(); }, {passive:false});
 
     window.addEventListener('load',()=>{
+      if(localStorage.getItem('timerStarted') === 'true') startBtn.disabled=true;
+
       if(localStorage.getItem('timerStart')) startMainTimer();
       else timerDisplay.innerText = formatTime(totalDuration/1000);
 
@@ -189,18 +195,17 @@
           pausedOnce=true;
           pauseBtn.disabled=true;
           clearInterval(timer);
+          checklist.style.display='none';
+          checklistProgress.style.display='none';
           let pauseRemaining = Math.ceil((pauseDuration-elapsed)/1000);
-
-          // Göm checklist och progress om pausen är aktiv
-          checklist.classList.add('hidden');
-          checklistProgress.classList.add('hidden');
-
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
           pauseTimer=setInterval(()=>{
             pauseRemaining--;
             if(pauseRemaining<=0){
               clearInterval(pauseTimer);
               pauseTimerDisplay.innerText='';
+              checklist.style.display='block';
+              checklistProgress.style.display='block';
               startMainTimer();
             } else {
               pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
