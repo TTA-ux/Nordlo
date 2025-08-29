@@ -129,9 +129,16 @@
       timer=setInterval(()=>{
         const elapsed = Date.now()-localStorage.getItem('timerStart');
         mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
-        if(mainRemaining<=0) mainRemaining=0;
+        if(mainRemaining<=0) {
+          mainRemaining=0;
+          clearInterval(timer);
+          // Ta bort spärrar när timern går ut
+          localStorage.removeItem('pausedOnce');
+          localStorage.removeItem('timerStart');
+          localStorage.removeItem('pauseStart');
+          pauseBtn.disabled=false;
+        }
         timerDisplay.innerText=formatTime(mainRemaining);
-        if(mainRemaining<=0) clearInterval(timer);
       },1000);
     }
 
@@ -154,7 +161,6 @@
         if(pauseRemaining<=0){
           clearInterval(pauseTimer);
           pauseTimerDisplay.innerText='';
-          localStorage.removeItem('pauseStart');
           startMainTimer();
         } else {
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
@@ -167,15 +173,10 @@
     pauseBtn.addEventListener('click',startPause);
     pauseBtn.addEventListener('touchstart', function(e){ e.preventDefault(); startPause(); }, {passive:false});
 
-    // Förhindra reload under pausen
-    window.addEventListener('beforeunload', (e) => {
-      if(localStorage.getItem('pauseStart')){
-        e.preventDefault();
-        e.returnValue = "Paus pågår! Du kan inte ladda om sidan just nu.";
-      }
-    });
-
     window.addEventListener('load',()=>{
+      if(localStorage.getItem('timerStart')) startMainTimer();
+      else timerDisplay.innerText = formatTime(totalDuration/1000);
+
       if(localStorage.getItem('pauseStart')){
         const elapsed = Date.now()-localStorage.getItem('pauseStart');
         if(elapsed<pauseDuration){
@@ -189,7 +190,6 @@
             if(pauseRemaining<=0){
               clearInterval(pauseTimer);
               pauseTimerDisplay.innerText='';
-              localStorage.removeItem('pauseStart');
               startMainTimer();
             } else {
               pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
@@ -197,12 +197,18 @@
           },1000);
         } else {
           localStorage.removeItem('pauseStart');
-          if(localStorage.getItem('timerStart')) startMainTimer();
         }
-      } else if(localStorage.getItem('timerStart')) {
-        startMainTimer();
-      } else {
-        timerDisplay.innerText = formatTime(totalDuration/1000);
+      }
+    });
+
+    // Förhindra fusk genom att varna vid siduppdatering eller navigering bort
+    window.addEventListener('beforeunload', function (e) {
+      const timerRunning = mainRemaining > 0;
+      const pauseActive = pauseTimerDisplay.innerText !== '';
+      if (timerRunning || pauseActive) {
+        e.preventDefault();
+        e.returnValue = 'Timer eller paus pågår! Är du säker på att du vill lämna sidan?';
+        return 'Timer eller paus pågår! Är du säker på att du vill lämna sidan?';
       }
     });
   </script>
