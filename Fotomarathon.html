@@ -1,226 +1,246 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FOTOMARATHON</title>
-<style>
-body { font-family: Arial, sans-serif; background: #f4f4f9; margin:0; padding:0; }
-.logo { width: 100%; display: block; }
-.container { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 10px; }
-h2 { text-align: center; margin: 5px 0; }
-.instructions { background: #eef; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
-.rules-title { text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
-ul { list-style: none; padding: 0; }
-li { margin: 10px 0; display: flex; align-items: center; }
-input[type="checkbox"] { transform: scale(1.5); margin-right: 12px; }
-label { font-size: 16px; }
-#timerDisplay, #pauseTimerDisplay { font-size: 24px; font-weight: bold; margin: 5px; text-align:center; }
-#checklistProgress { margin-top: 10px; font-size: 16px; }
-button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; color: white; cursor: pointer; }
-#startTimerBtn { background-color: #4CAF50; }
-#startTimerBtn.disabled, #pauseBtn.disabled, #resetAllBtn.disabled { background-color: #aaa; cursor: not-allowed; }
-#pauseBtn { background-color: #555; }
-#resetAllBtn { background-color: #f44336; }
-#pauseTimerDisplay { color: red; }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOTOMARATHON</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f9; margin:0; padding:0; }
+    .logo { width: 100%; display: block; }
+    .container { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 10px; }
+    h2 { text-align: center; margin: 5px 0; }
+    .instructions { background: #eef; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+    .rules-title { text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 10px 0; display: flex; align-items: center; }
+    input[type="checkbox"] { transform: scale(1.5); margin-right: 12px; }
+    label { font-size: 16px; }
+    #timerDisplay, #pauseTimerDisplay { font-size: 24px; font-weight: bold; margin: 5px; text-align:center; }
+    #checklistProgress { margin-top: 10px; font-size: 16px; }
+    button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; cursor: pointer; }
+    #startTimerBtn { background-color: #4CAF50; color: white; }
+    #startTimerBtn:disabled { background-color: #aaa; color: #666; }
+    #pauseBtn { background-color: #888; color: white; }
+    #pauseBtn:disabled { background-color: #ccc; color: #666; }
+    #resetTimerBtn { background-color: #f44336; color: white; }
+    #releaseBtn { background-color: #2196F3; color: white; }
+    #pauseTimerDisplay { color: red; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-<img src="NORDLO.png" alt="Logo" class="logo">
-<div class="container">
-<h2>FOTOMARATHON</h2>
-<h2>Lloret de Mar</h2>
+  <img src="NORDLO.png" alt="Logo" class="logo">
+  <div class="container">
+    <h2>FOTOMARATHON</h2>
+    <h2>Lloret de Mar</h2>
 
-<div class="instructions">
-  <div class="rules-title">REGLER</div>
-  <p>- Alla i laget ska synas på alla bilderna.</p>
-  <p>- En person måste alltid utföra samma sak på alla bilder.</p>
-  <p>- Laget måste vara tillbaka exakt 75 minuter efter att startsignalen går.</p>
-  <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
-</div>
+    <div class="instructions">
+      <div class="rules-title">REGLER</div>
+      <p>- Alla i laget ska synas på alla bilderna.</p>
+      <p>- En person måste alltid utföra samma sak på alla bilder.</p>
+      <p>- Laget måste vara tillbaka exakt 75 minuter efter startsignalen.</p>
+      <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
+    </div>
 
-<div style="text-align:center; margin-bottom: 20px;">
-  <div id="timerDisplay">75:00</div>
-  <div id="pauseTimerDisplay"></div>
-  <div id="checklistProgress">0% klara</div>
-  <button id="startTimerBtn">Starta timer</button>
-  <button id="pauseBtn" class="disabled">Pausa 10 min</button>
-  <button id="resetAllBtn">Släpp alla spärrar</button>
-</div>
+    <div style="text-align:center; margin-bottom: 20px;">
+      <div id="timerDisplay">75:00</div>
+      <div id="pauseTimerDisplay"></div>
+      <div id="checklistProgress">0% klara</div>
+      <button id="startTimerBtn">Starta timer</button>
+      <button id="resetTimerBtn">Nollställ timer</button>
+      <button id="pauseBtn" disabled>Pausa 10 min</button>
+      <button id="releaseBtn">Släpp alla spärrar</button>
+    </div>
 
-<ul id="checklist"></ul>
-</div>
+    <ul id="checklist"></ul>
+  </div>
 
-<script>
-const items = [
-  'En gruppbild på det minsta utrymmet ni får plats i',
-  'Bygg något tillsammans (Fri tolkning)',
-  'En oväntad vänskap...!',
-  'Alla i laget gör samma sak',
-  'En “olycka” på semestern',
-  'Havstema',
-  'Före & efter – ta två bilder bredvid varandra',
-  'Skriv NORDLO i sanden',
-  'Kläm ihop nåt jättestort',
-  'Det minsta och största ni hittar',
-  'Gör honnör framför en fontän!',
-  'Krama en palm!',
-  'Gör tummen upp framför Iglesia de San Román',
-  'Turistfällan – posera framför något vardagligt',
-  'Alla är vända bort från kameran',
-  'Ta en gruppbild med ett djur',
-  'Peta på en motorcykel. En ska se glad ut',
-  'Ramla! (roliga gatan fram)',
-  'Ha en livlig argumentation',
-  'Spela fotboll',
-  'Ät nåt litet, men gapa så att det är jättestort',
-  'Återskapa skivomslaget till Beatles - Abbey road'
-];
+  <script>
+    const items = [
+      'En gruppbild på det minsta utrymmet ni får plats i',
+      'Bygg något tillsammans',
+      'En oväntad vänskap...!',
+      'Alla i laget gör samma sak',
+      'En “olycka” på semestern',
+      'Havstema',
+      'Före & efter – två bilder bredvid varandra',
+      'Skriv NORDLO i sanden på stranden',
+      'Kläm ihop nåt jättestort',
+      'Det minsta och största ni hittar',
+      'Gör honnör framför en fontän!',
+      'Krama en palm!',
+      'Gör tummen upp framför Iglesia de San Román',
+      'Turistfällan – posera framför något vardagligt',
+      'Alla är vända bort från kameran',
+      'Ta en gruppbild med ett djur',
+      'Peta på en motorcykel. En glad, andra förskräckta',
+      'Ramla! (roliga gatan fram)',
+      'Ha en livlig argumentation',
+      'Spela fotboll',
+      'Ät nåt litet, men gapa så det ser jättestort ut',
+      'Återskapa skivomslaget till Beatles - Abbey road'
+    ];
 
-const checklist = document.getElementById('checklist');
-items.forEach((item,index)=>{
-  const li = document.createElement('li');
-  const checkbox = document.createElement('input');
-  checkbox.type='checkbox';
-  checkbox.id=`task${index+1}`;
-  if(localStorage.getItem(checkbox.id)==='true') checkbox.checked=true;
-  checkbox.addEventListener('change',()=>{
-    localStorage.setItem(checkbox.id,checkbox.checked);
-    updateChecklistProgress();
-    if(checkbox.checked && /Mobi|Android/i.test(navigator.userAgent)){
-      confetti({particleCount:100, spread:70, origin:{y:0.6}});
+    const checklist = document.getElementById('checklist');
+    items.forEach((item,index)=>{
+      const li = document.createElement('li');
+      const checkbox = document.createElement('input');
+      checkbox.type='checkbox';
+      checkbox.id=`task${index+1}`;
+      if(localStorage.getItem(checkbox.id)==='true') checkbox.checked=true;
+      checkbox.addEventListener('change',()=>{
+        localStorage.setItem(checkbox.id,checkbox.checked);
+        updateChecklistProgress();
+        if(checkbox.checked && /Mobi|Android/i.test(navigator.userAgent)){
+          confetti({particleCount:100, spread:70, origin:{y:0.6}});
+        }
+      });
+      const label = document.createElement('label');
+      label.htmlFor=checkbox.id;
+      label.innerText=item;
+      li.appendChild(checkbox);
+      li.appendChild(label);
+      checklist.appendChild(li);
+    });
+
+    const checklistProgress = document.getElementById('checklistProgress');
+    function updateChecklistProgress(){
+      const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
+      const total = checkboxes.length;
+      const checked = Array.from(checkboxes).filter(cb=>cb.checked).length;
+      checklistProgress.innerText = `${Math.round((checked/total)*100)}% klara`;
     }
-  });
-  const label = document.createElement('label');
-  label.htmlFor=checkbox.id;
-  label.innerText=item;
-  li.appendChild(checkbox);
-  li.appendChild(label);
-  checklist.appendChild(li);
-});
+    updateChecklistProgress();
 
-const checklistProgress = document.getElementById('checklistProgress');
-function updateChecklistProgress(){
-  const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
-  const total = checkboxes.length;
-  const checked = Array.from(checkboxes).filter(cb=>cb.checked).length;
-  checklistProgress.innerText = `${Math.round((checked/total)*100)}% klara`;
-}
-updateChecklistProgress();
+    const timerDisplay = document.getElementById('timerDisplay');
+    const pauseTimerDisplay = document.getElementById('pauseTimerDisplay');
+    const startBtn = document.getElementById('startTimerBtn');
+    const resetBtn = document.getElementById('resetTimerBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const releaseBtn = document.getElementById('releaseBtn');
 
-const timerDisplay = document.getElementById('timerDisplay');
-const pauseTimerDisplay = document.getElementById('pauseTimerDisplay');
-const startBtn = document.getElementById('startTimerBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const resetAllBtn = document.getElementById('resetAllBtn');
+    let totalDuration = 75*60*1000;
+    let pauseDuration = 10*60*1000;
+    let timer, pauseTimer;
+    let pausedOnce = localStorage.getItem('pausedOnce')==='true';
+    let mainRemaining = totalDuration;
+    let timerStarted = localStorage.getItem('timerStart') ? true : false;
 
-const totalDuration = 75*60*1000;
-const pauseDuration = 10*60*1000;
-let timer, pauseTimer;
+    function formatTime(seconds){ 
+      const m=Math.floor(seconds/60), s=seconds%60; 
+      return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; 
+    }
 
-function formatTime(seconds){ 
-  const m=Math.floor(seconds/60), s=seconds%60; 
-  return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; 
-}
+    function startMainTimer(){
+      if(timerStarted) return;
+      timerStarted=true;
+      localStorage.setItem('timerStart',Date.now());
+      startBtn.disabled=true;
+      startBtn.style.backgroundColor="#aaa";
+      pauseBtn.disabled=false;
+      pauseBtn.style.backgroundColor="#888";
 
-function updateButtons(){
-  if(localStorage.getItem('mainEndTime')){
-    startBtn.classList.add('disabled'); startBtn.disabled=true;
-    pauseBtn.classList.remove('disabled'); pauseBtn.disabled=false;
-  } else {
-    startBtn.classList.remove('disabled'); startBtn.disabled=false;
-    pauseBtn.classList.add('disabled'); pauseBtn.disabled=true;
-  }
-}
-
-function startMainTimer(){
-  if(!localStorage.getItem('mainEndTime')){
-    localStorage.setItem('mainEndTime', Date.now() + totalDuration);
-  }
-  updateButtons();
-  clearInterval(timer);
-  timer = setInterval(()=>{
-    const remaining = Math.max(0, Math.ceil((localStorage.getItem('mainEndTime')-Date.now())/1000));
-    timerDisplay.innerText = formatTime(remaining);
-    if(remaining<=0){
       clearInterval(timer);
-      localStorage.removeItem('mainEndTime');
-      updateButtons();
-      pauseTimerDisplay.innerText='';
+      timer=setInterval(()=>{
+        const elapsed = Date.now()-localStorage.getItem('timerStart');
+        mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
+        if(mainRemaining<=0){
+          mainRemaining=0;
+          clearInterval(timer);
+        }
+        timerDisplay.innerText=formatTime(mainRemaining);
+      },1000);
     }
-  },1000);
-}
 
-function startPause(){
-  if(!localStorage.getItem('mainEndTime')) return; // huvudtimer måste vara igång
-  if(localStorage.getItem('pauseEndTime')) return; // redan paus pågår
+    function startPause(){
+      if(!timerStarted || pausedOnce) return;
+      if(!confirm("OBS! Pausen går endast en gång! Är du säker?")) return;
+      pausedOnce=true;
+      localStorage.setItem('pausedOnce','true');
 
-  const confirmPause = confirm("OBS! Endast en gång! Är du säker?");
-  if(!confirmPause) return;
+      clearInterval(timer);
+      pauseBtn.disabled=true;
+      pauseBtn.style.backgroundColor="#ccc";
+      startBtn.disabled=true;
+      startBtn.style.backgroundColor="#aaa";
 
-  clearInterval(timer);
-  const pauseEnd = Date.now() + pauseDuration;
-  localStorage.setItem('pauseEndTime', pauseEnd);
-  pauseBtn.classList.add('disabled'); pauseBtn.disabled=true;
-  startBtn.classList.add('disabled'); startBtn.disabled=true;
+      localStorage.setItem('pauseStart',Date.now());
+      let pauseRemaining = pauseDuration/1000;
+      pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
 
-  pauseTimerDisplay.innerText = "Paus " + formatTime(pauseDuration/1000);
-  pauseTimer = setInterval(()=>{
-    const remaining = Math.max(0, Math.ceil((pauseEnd - Date.now())/1000));
-    pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
-    if(remaining<=0){
+      pauseTimer=setInterval(()=>{
+        pauseRemaining--;
+        if(pauseRemaining<=0){
+          clearInterval(pauseTimer);
+          pauseTimerDisplay.innerText='';
+          const elapsed = Date.now() - localStorage.getItem('timerStart');
+          mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
+          startMainTimer();
+        } else {
+          pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
+        }
+      },1000);
+    }
+
+    function resetAll(){
+      clearInterval(timer);
       clearInterval(pauseTimer);
-      localStorage.removeItem('pauseEndTime');
-      startMainTimer();
+      localStorage.clear();
+      mainRemaining = totalDuration;
+      timerDisplay.innerText=formatTime(mainRemaining);
+      pauseTimerDisplay.innerText='';
+      startBtn.disabled=false;
+      startBtn.style.backgroundColor="#4CAF50";
+      pauseBtn.disabled=true;
+      pauseBtn.style.backgroundColor="#888";
+      checklist.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
+      updateChecklistProgress();
     }
-  },1000);
-}
 
-function resetAll(){
-  if(confirm("Är du säker på att släppa alla spärrar?")){
-    localStorage.clear();
-    const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(cb=>cb.checked=false);
-    updateChecklistProgress();
-    clearInterval(timer);
-    clearInterval(pauseTimer);
-    timerDisplay.innerText = formatTime(totalDuration/1000);
-    pauseTimerDisplay.innerText='';
-    updateButtons();
-  }
-}
+    startBtn.addEventListener('click',startMainTimer);
+    pauseBtn.addEventListener('click',startPause);
+    resetBtn.addEventListener('click',()=>{
+      alert("APP-APP-APP!\nFörsök inte fuska!\n\nLedningen har nu fått ett mail om att ni tryckt på knappen!");
+    });
+    releaseBtn.addEventListener('click',resetAll);
 
-// Sätt knappar initialt
-updateButtons();
+    window.addEventListener('beforeunload', function(e){
+      if(timerStarted || pausedOnce){
+        e.preventDefault();
+        e.returnValue='';
+      }
+    });
 
-// Event listeners
-startBtn.addEventListener('click', startMainTimer);
-pauseBtn.addEventListener('click', startPause);
-resetAllBtn.addEventListener('click', resetAll);
-
-// Reload-spärr
-window.addEventListener('beforeunload', function(e){
-  if(localStorage.getItem('mainEndTime') || localStorage.getItem('pauseEndTime')){
-    e.preventDefault();
-    e.returnValue='Timer eller paus pågår! Är du säker på att lämna sidan?';
-    return e.returnValue;
-  }
-});
-
-// Vid laddning
-window.addEventListener('load',()=>{
-  const mainEnd = parseInt(localStorage.getItem('mainEndTime'));
-  const pauseEnd = parseInt(localStorage.getItem('pauseEndTime'));
-
-  if(mainEnd){
-    if(pauseEnd && pauseEnd > Date.now()){
-      startPause();
-    } else {
-      startMainTimer();
+    // Återställ timer efter reload
+    if(timerStarted){
+      const elapsed = Date.now()-localStorage.getItem('timerStart');
+      mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
+      if(mainRemaining>0){
+        startMainTimer();
+      }
     }
-  }
-});
-</script>
+
+    if(pausedOnce){
+      const pauseElapsed = Date.now()-localStorage.getItem('pauseStart');
+      let pauseRemaining = Math.ceil((pauseDuration-pauseElapsed)/1000);
+      if(pauseRemaining>0){
+        pauseBtn.disabled=true;
+        pauseBtn.style.backgroundColor="#ccc";
+        clearInterval(timer);
+        pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
+        pauseTimer=setInterval(()=>{
+          pauseRemaining--;
+          if(pauseRemaining<=0){
+            clearInterval(pauseTimer);
+            pauseTimerDisplay.innerText='';
+            startMainTimer();
+          } else {
+            pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
+          }
+        },1000);
+      }
+    }
+
+  </script>
 </body>
 </html>
