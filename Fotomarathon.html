@@ -57,7 +57,7 @@
     label {
       font-size: 16px;
     }
-    #timerDisplay, #pauseDisplay {
+    #timerDisplay {
       font-size: 24px;
       font-weight: bold;
     }
@@ -90,17 +90,16 @@
     <div class="instructions">
       <div class="rules-title">REGLER</div>
       <p>- Alla i laget ska synas på alla bilderna.</p>
-      <p>- En person måste alltid utföra samma sak på alla bilder.</p>
-      <p>- Laget måste vara tillbaka exakt 75 minuter efter startsignalen.</p>
+      <p>- En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
+      <p>- Laget måste vara tillbaka exakt 75 minuter efter att startsignalen går.</p>
       <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
     </div>
 
     <div style="text-align:center; margin-bottom: 20px;">
       <div id="timerDisplay">75:00</div>
-      <div id="pauseDisplay"></div>
       <div id="checklistProgress">0% klara</div>
       <button id="startTimerBtn">Starta timer</button>
-      <button id="pauseTimerBtn">Paus 10 min</button>
+      <button id="pauseTimerBtn">Paus</button>
       <button id="resetTimerBtn">Nollställ timer</button>
     </div>
 
@@ -122,11 +121,11 @@
       'Gör honnör framför en fontän',
       'Krama en palm',
       'Gör tummen upp framför Iglesia de San Román',
-      'Turistfällan – posera framför något helt vardagligt som om det vore stadens största sevärdhet',
+      'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet',
       'Alla är vända bort från kameran',
       'Ta kort på en katt/hund',
-      'En jokerbild som de själva hittar på',
-      'Peta på en motorcykel. En ska se glad ut, alla andra förskräckta',
+      'En jokerbild som de själva hittar på – men de måste kunna förklara hur den visar samarbete.',
+      'Peta på en motorcykel. En ska se glad ut, alla andra ska vara förskräckta',
       'Ramla',
       'Stå på tå i en dörröppning',
       'Ha en livlig argumentation',
@@ -136,7 +135,6 @@
     ];
 
     const checklist = document.getElementById('checklist');
-    const checklistProgress = document.getElementById('checklistProgress');
 
     // Skapa checklistan
     items.forEach((item, index) => {
@@ -146,11 +144,15 @@
 
       checkbox.type = 'checkbox';
       checkbox.id = `task${index+1}`;
-      if (localStorage.getItem(checkbox.id) === 'true') checkbox.checked = true;
+
+      if (localStorage.getItem(checkbox.id) === 'true') {
+        checkbox.checked = true;
+      }
 
       checkbox.addEventListener('change', () => {
         localStorage.setItem(checkbox.id, checkbox.checked);
         updateChecklistProgress();
+
         if (checkbox.checked && /Mobi|Android/i.test(navigator.userAgent)) {
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
@@ -158,11 +160,14 @@
 
       label.htmlFor = checkbox.id;
       label.innerText = item;
+
       li.appendChild(checkbox);
       li.appendChild(label);
       checklist.appendChild(li);
     });
 
+    // Uppdatera checklistprogress
+    const checklistProgress = document.getElementById('checklistProgress');
     function updateChecklistProgress() {
       const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
       const total = checkboxes.length;
@@ -174,26 +179,31 @@
 
     // Timer
     const timerDisplay = document.getElementById('timerDisplay');
-    const pauseDisplay = document.getElementById('pauseDisplay');
     const startBtn = document.getElementById('startTimerBtn');
     const pauseBtn = document.getElementById('pauseTimerBtn');
     const resetBtn = document.getElementById('resetTimerBtn');
     let totalDuration = 75 * 60 * 1000;
+    let pauseDuration = 10 * 60 * 1000;
     let timer;
+    let pauseTimer;
+    let paused = false;
 
-    function updateTimer(secondsLeft) {
+    function updateTimer(secondsLeft, isPause = false) {
       const minutes = Math.floor(secondsLeft / 60);
       const seconds = secondsLeft % 60;
-      timerDisplay.innerText = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+      timerDisplay.innerText = (isPause ? "Paus " : "") + `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
     }
 
     function startTimer() {
+      if (localStorage.getItem('pauseActive') === 'true') return; // Paus pågår, starta ej
+
       if (!localStorage.getItem('timerStart')) {
         localStorage.setItem('timerStart', Date.now());
       }
+
       clearInterval(timer);
       timer = setInterval(() => {
-        const startTime = parseInt(localStorage.getItem('timerStart'));
+        const startTime = localStorage.getItem('timerStart');
         const elapsed = Date.now() - startTime;
         let remaining = Math.ceil((totalDuration - elapsed) / 1000);
         if (remaining <= 0) {
@@ -204,80 +214,58 @@
       }, 1000);
     }
 
+    function startPause() {
+      if (localStorage.getItem('pauseUsed') === 'true') return; // Kan bara användas en gång
+
+      localStorage.setItem('pauseUsed', 'true');
+      localStorage.setItem('pauseActive', 'true');
+      clearInterval(timer);
+
+      const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.parentElement.style.display = 'none'); // Dölj kryssrutor
+
+      let remaining = pauseDuration / 1000;
+      updateTimer(remaining, true);
+
+      pauseTimer = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(pauseTimer);
+          localStorage.removeItem('pauseActive');
+          checkboxes.forEach(cb => cb.parentElement.style.display = 'flex'); // Visa kryssrutor igen
+          startTimer();
+        }
+        updateTimer(remaining, true);
+      }, 1000);
+    }
+
     function resetTimer() {
       alert("APP-APP-APP! Inte fuska! Ledningen har nu fått ett mail om att ni tryckt på knappen!");
-      clearInterval(timer);
-      localStorage.removeItem('timerStart');
-      updateTimer(totalDuration / 1000);
     }
 
     startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', startPause);
     resetBtn.addEventListener('click', resetTimer);
 
-    // Pausfunktion (bara en gång)
-    pauseBtn.addEventListener('click', () => {
-      if (localStorage.getItem('pauseUsed')) return;
-      localStorage.setItem('pauseUsed', 'true');
-      pauseBtn.style.display = 'none';
-      const pauseDuration = 10 * 60 * 1000;
-      const pauseStart = Date.now();
-      localStorage.setItem('pauseStart', pauseStart);
-      checklist.style.display = 'none';
-
-      clearInterval(timer); // stoppa huvudtimer visuellt
-
-      const pauseInterval = setInterval(() => {
-        const elapsed = Date.now() - pauseStart;
-        let remaining = pauseDuration - elapsed;
-        if (remaining <= 0) {
-          clearInterval(pauseInterval);
-          checklist.style.display = 'block';
-          localStorage.removeItem('pauseStart');
-          pauseDisplay.innerText = '';
-          startTimer();
-          alert("Pausen är slut! Nu kör vi vidare.");
-        } else {
-          const minutes = Math.floor(remaining / 60000);
-          const seconds = Math.floor((remaining % 60000) / 1000);
-          pauseDisplay.innerText = `Paus: ${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-        }
-      }, 1000);
-    });
-
-    // Starta timer automatiskt om tidigare start finns
-    if (localStorage.getItem('pauseStart')) {
-      pauseBtn.style.display = 'none';
-      const pauseStart = parseInt(localStorage.getItem('pauseStart'));
-      checklist.style.display = 'none';
-      const pauseInterval = setInterval(() => {
-        const elapsed = Date.now() - pauseStart;
-        let remaining = 10*60*1000 - elapsed;
-        if (remaining <= 0) {
-          clearInterval(pauseInterval);
-          checklist.style.display = 'block';
-          localStorage.removeItem('pauseStart');
-          pauseDisplay.innerText = '';
-          startTimer();
-        } else {
-          const minutes = Math.floor(remaining / 60000);
-          const seconds = Math.floor((remaining % 60000)/1000);
-          pauseDisplay.innerText = `Paus: ${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-        }
-      }, 1000);
-    } else if (localStorage.getItem('timerStart')) {
-      startTimer();
+    // Automatisk återstart om paus ej aktiv
+    if (localStorage.getItem('pauseActive') !== 'true') {
+      if (localStorage.getItem('timerStart')) {
+        startTimer();
+      } else {
+        updateTimer(totalDuration / 1000);
+      }
     } else {
-      updateTimer(totalDuration / 1000);
+      // Paus pågår vid omladdning
+      startPause();
     }
 
-    // Förhindra refresh under paus
-    window.addEventListener('beforeunload', (e) => {
-      if (localStorage.getItem('pauseStart')) {
+    // Förhindra omladdning under paus
+    window.addEventListener('beforeunload', function (e) {
+      if (localStorage.getItem('pauseActive') === 'true') {
         e.preventDefault();
         e.returnValue = '';
       }
     });
-
   </script>
 </body>
 </html>
