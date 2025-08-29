@@ -135,7 +135,7 @@
       localStorage.setItem('startedOnce','true');
 
       startBtn.disabled = true;
-      pauseBtn.disabled = false;
+      pauseBtn.disabled = false; // aktiveras först här
 
       if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
       clearInterval(timer);
@@ -155,10 +155,6 @@
     }
 
     function startPause(){
-      if(!startedOnce) {
-        alert("Du måste starta huvudtimern innan du kan pausa!");
-        return;
-      }
       if(pausedOnce) return;
       if(!confirm("OBS! Denna paus kan bara användas EN gång!\nÄr du säker?")) return;
 
@@ -211,6 +207,12 @@
     resetBtn.addEventListener('click',()=>alert("APP-APP-APP!\nFörsök inte fuska!\n\nLedningen har nu fått ett mail om att ni tryckt på knappen!"));
     pauseBtn.addEventListener('click',startPause);
     resetAllBtn.addEventListener('click',resetAll);
+
+    // Förhindra uppdatering av sidan
+    window.addEventListener("beforeunload", function (e) {
+      e.preventDefault();
+      e.returnValue = "Du kan inte ladda om sidan under spelet!";
+    });
 
     window.addEventListener('load',()=>{
       if(localStorage.getItem('timerStart')){
