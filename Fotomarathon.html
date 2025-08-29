@@ -20,6 +20,7 @@
     button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; background-color: #4CAF50; color: white; cursor: pointer; }
     button:hover { background-color: #45a049; }
     #pauseTimerDisplay { color: red; }
+    .hidden { display: none; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
@@ -124,6 +125,8 @@
     }
 
     function startMainTimer(){
+      checklist.classList.remove('hidden');
+      checklistProgress.classList.remove('hidden');
       if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
       clearInterval(timer);
       timer=setInterval(()=>{
@@ -132,7 +135,6 @@
         if(mainRemaining<=0) {
           mainRemaining=0;
           clearInterval(timer);
-          // Ta bort spärrar när timern går ut
           localStorage.removeItem('pausedOnce');
           localStorage.removeItem('timerStart');
           localStorage.removeItem('pauseStart');
@@ -149,9 +151,13 @@
       pausedOnce=true;
       localStorage.setItem('pausedOnce','true');
 
-      clearInterval(timer); // pausa huvudtimer
+      clearInterval(timer);
       localStorage.setItem('pauseStart',Date.now());
       pauseBtn.disabled=true;
+
+      // Göm checklist och progress under pausen
+      checklist.classList.add('hidden');
+      checklistProgress.classList.add('hidden');
 
       let pauseRemaining = pauseDuration/1000;
       pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
@@ -184,6 +190,11 @@
           pauseBtn.disabled=true;
           clearInterval(timer);
           let pauseRemaining = Math.ceil((pauseDuration-elapsed)/1000);
+
+          // Göm checklist och progress om pausen är aktiv
+          checklist.classList.add('hidden');
+          checklistProgress.classList.add('hidden');
+
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
           pauseTimer=setInterval(()=>{
             pauseRemaining--;
@@ -201,7 +212,6 @@
       }
     });
 
-    // Förhindra fusk genom att varna vid siduppdatering eller navigering bort
     window.addEventListener('beforeunload', function (e) {
       const timerRunning = mainRemaining > 0;
       const pauseActive = pauseTimerDisplay.innerText !== '';
