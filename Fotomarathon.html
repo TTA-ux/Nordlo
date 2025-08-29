@@ -129,13 +129,24 @@
       return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; 
     }
 
+    function enableBlockReload(){
+      window.addEventListener("beforeunload", blockReload);
+    }
+    function disableBlockReload(){
+      window.removeEventListener("beforeunload", blockReload);
+    }
+    function blockReload(e){
+      e.preventDefault();
+      e.returnValue = "Du kan inte ladda om sidan under spelet!";
+    }
+
     function startMainTimer(){
-      if(startedOnce) return; // kan bara starta en gång
+      if(startedOnce) return; 
       startedOnce = true;
       localStorage.setItem('startedOnce','true');
 
       startBtn.disabled = true;
-      pauseBtn.disabled = false; // aktiveras först här
+      pauseBtn.disabled = false;
 
       if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
       clearInterval(timer);
@@ -149,9 +160,12 @@
           localStorage.removeItem('timerStart');
           localStorage.removeItem('pauseStart');
           pauseBtn.disabled=false;
+          disableBlockReload(); // när spelet är slut tas blockeringen bort
         }
         timerDisplay.innerText=formatTime(mainRemaining);
       },1000);
+
+      enableBlockReload(); // blockera reload när huvudtimer startar
     }
 
     function startPause(){
@@ -161,7 +175,7 @@
       pausedOnce = true;
       localStorage.setItem('pausedOnce','true');
 
-      clearInterval(timer); // pausa huvudtimer
+      clearInterval(timer);
       pauseBtn.disabled = true;
       startBtn.disabled = true;
 
@@ -170,6 +184,8 @@
 
       let pauseRemaining = pauseDuration/1000;
       pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
+
+      enableBlockReload(); // blockera reload under pausen
 
       pauseTimer = setInterval(()=>{
         pauseRemaining--;
@@ -201,6 +217,7 @@
       updateChecklistProgress();
       pauseBtn.disabled=true;
       startBtn.disabled=false;
+      disableBlockReload(); // ta bort blockering
     }
 
     startBtn.addEventListener('click',startMainTimer);
@@ -208,41 +225,11 @@
     pauseBtn.addEventListener('click',startPause);
     resetAllBtn.addEventListener('click',resetAll);
 
-    // Förhindra uppdatering av sidan
-    window.addEventListener("beforeunload", function (e) {
-      e.preventDefault();
-      e.returnValue = "Du kan inte ladda om sidan under spelet!";
-    });
-
     window.addEventListener('load',()=>{
       if(localStorage.getItem('timerStart')){
         startMainTimer();
       } else {
         timerDisplay.innerText = formatTime(totalDuration/1000);
-      }
-
-      if(localStorage.getItem('pauseStart')){
-        const elapsed = Date.now()-localStorage.getItem('pauseStart');
-        if(elapsed<pauseDuration){
-          pausedOnce=true;
-          pauseBtn.disabled=true;
-          startBtn.disabled=true;
-          clearInterval(timer);
-          let pauseRemaining = Math.ceil((pauseDuration-elapsed)/1000);
-          pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
-          pauseTimer = setInterval(()=>{
-            pauseRemaining--;
-            if(pauseRemaining<=0){
-              clearInterval(pauseTimer);
-              pauseTimerDisplay.innerText='';
-              checklist.style.display = 'block';
-              checklistProgress.style.display = 'block';
-              startMainTimer();
-            } else {
-              pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
-            }
-          },1000);
-        }
       }
     });
   </script>
