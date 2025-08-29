@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checklista Grupp 1</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.5);
+      margin-right: 12px;
+    }
+    label {
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Checklista – Grupp 1</h2>
+    <ul id="checklist"></ul>
+  </div>
+
+  <script>
+    const groupNumber = 1; // Ändra till 2, 3 osv. för varje grupp
+
+    const items = [
+      'Den minsta platsen där de alla får plats för en gruppbild',
+      'Vi bygger något tillsammans (fri tolkning. Gör en pyramid eller bygg ett sandslott eller hitta en byggarbetsplats.)',
+      'Oväntad vänskap',
+      'Alla i laget gör samma sak samtidigt (tex Alla i luften eller liknande)',
+      'En “olycka” på semestern',
+      'Havstema',
+      'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.',
+      'Skriv NORDLO i sanden på stranden och ta en gruppbild',
+      'Kläm ihop nåt jättestort',
+      'Det minsta och största de hittar, som ryms i en hand',
+      'Gör honnör framför en fontän',
+      'Krama en palm',
+      'Gör tummen upp framför Iglesia de San Román',
+      'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet',
+      'Alla är vända bort från kameran',
+      'Ta kort på en katt/hund',
+      'En jokerbild som de själva hittar på – men de måste kunna förklara hur den visar samarbete.',
+      'Peta på en motorcykel. En ska se glad ut, alla andra ska vara förskräckta'
+    ];
+
+    const checklist = document.getElementById('checklist');
+
+    items.forEach((item, index) => {
+      const li = document.createElement('li');
+      const checkbox = document.createElement('input');
+      const label = document.createElement('label');
+
+      checkbox.type = 'checkbox';
+      checkbox.id = `group${groupNumber}-task${index+1}`;
+
+      // Ladda sparad status
+      if (localStorage.getItem(checkbox.id) === 'true') {
+        checkbox.checked = true;
+      }
+
+      checkbox.addEventListener('change', () => {
+        localStorage.setItem(checkbox.id, checkbox.checked);
+      });
+
+      label.htmlFor = checkbox.id;
+      label.innerText = item;
+
+      li.appendChild(checkbox);
+      li.appendChild(label);
+      checklist.appendChild(li);
+    });
+  </script>
+</body>
+</html>
