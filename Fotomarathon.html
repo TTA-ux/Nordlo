@@ -138,17 +138,13 @@
     function disableBlockReload(){ window.removeEventListener("beforeunload", blockReload); }
 
     function startMainTimer(){
-      if(startedOnce) return;
-      startedOnce = true;
-      localStorage.setItem('startedOnce','true');
-
       startBtn.disabled = true;
       startBtn.classList.add("used"); 
       pauseBtn.disabled = false;
-      pauseBtn.style.backgroundColor = '#4CAF50';
 
-      let endTime = Date.now()+totalDuration;
+      let endTime = parseInt(localStorage.getItem('endTime')) || Date.now() + totalDuration;
       localStorage.setItem('endTime', endTime);
+      localStorage.setItem('startedOnce', 'true');
 
       clearInterval(timer);
       timer=setInterval(()=>{
@@ -175,27 +171,27 @@
       pauseBtn.disabled = true;
       startBtn.disabled = true;
 
-      // Dölj checklist och progress
       checklist.style.display = 'none';
       checklistProgress.style.display = 'none';
 
-      let pauseRemaining = pauseDuration/1000;
-      pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
-
-      enableBlockReload(); // blockera reload även under pausen
+      let pauseEndTime = Date.now() + pauseDuration;
+      localStorage.setItem('pauseEndTime', pauseEndTime);
 
       pauseTimer=setInterval(()=>{
-        pauseRemaining--;
-        if(pauseRemaining<=0){
+        let remaining = Math.ceil((pauseEndTime - Date.now())/1000);
+        if(remaining<=0){
           clearInterval(pauseTimer);
           pauseTimerDisplay.innerText='';
           checklist.style.display='block';
           checklistProgress.style.display='block';
+          localStorage.removeItem('pauseEndTime');
           startMainTimer(); 
         } else {
-          pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
+          pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
         }
       },1000);
+
+      enableBlockReload(); 
     }
 
     function resetAll(){
@@ -214,8 +210,7 @@
       pauseBtn.disabled=true;
       startBtn.disabled=false;
       startBtn.classList.remove("used");
-      pauseBtn.style.backgroundColor = '#999';
-      disableBlockReload();
+      disableBlockReload(); 
     }
 
     startBtn.addEventListener('click',startMainTimer);
@@ -223,11 +218,38 @@
     pauseBtn.addEventListener('click',startPause);
     resetAllBtn.addEventListener('click',resetAll);
 
-    // På laddning: visa checkbox-status
-    checklist.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
-      cb.checked = localStorage.getItem(cb.id)==='true';
+    window.addEventListener('load',()=>{
+      const pauseEndTime = parseInt(localStorage.getItem('pauseEndTime'));
+      const now = Date.now();
+
+      if(pauseEndTime && now < pauseEndTime){
+        // Vi är mitt i pausen
+        checklist.style.display='none';
+        checklistProgress.style.display='none';
+        pauseBtn.disabled = true;
+        startBtn.disabled = true;
+        pausedOnce = true;
+        localStorage.setItem('pausedOnce','true');
+
+        pauseTimer=setInterval(()=>{
+          let remaining = Math.ceil((pauseEndTime - Date.now())/1000);
+          if(remaining<=0){
+            clearInterval(pauseTimer);
+            pauseTimerDisplay.innerText='';
+            checklist.style.display='block';
+            checklistProgress.style.display='block';
+            localStorage.removeItem('pauseEndTime');
+            startMainTimer(); 
+          } else {
+            pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
+          }
+        },1000);
+        enableBlockReload(); 
+      } else if(localStorage.getItem('startedOnce')==='true'){
+        // Timer redan startad
+        startMainTimer();
+      }
     });
-    updateChecklistProgress();
   </script>
 </body>
 </html>
