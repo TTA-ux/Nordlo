@@ -23,6 +23,7 @@
     #pauseTimerDisplay { color: red; }
     #resetAllBtn { background-color: #f44336; }
     #resetAllBtn:hover:enabled { background-color: #e53935; }
+    .used { background-color: #b71c1c !important; color: #fff !important; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
@@ -142,6 +143,7 @@
       localStorage.setItem('startedOnce','true');
 
       startBtn.disabled = true;
+      startBtn.classList.add("used"); 
       pauseBtn.disabled = false;
 
       let endTime = Date.now()+totalDuration;
@@ -153,12 +155,12 @@
         if(remaining<=0){
           clearInterval(timer);
           remaining=0;
-          disableBlockReload(); // spärr släpper endast vid slut
+          disableBlockReload(); // tillåts först när timern tar slut
         }
         timerDisplay.innerText=formatTime(remaining);
       },1000);
 
-      enableBlockReload(); // spärr aktiveras
+      enableBlockReload(); 
     }
 
     function startPause(){
@@ -178,7 +180,7 @@
       let pauseRemaining = pauseDuration/1000;
       pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
 
-      enableBlockReload(); // spärr även vid paus
+      enableBlockReload(); // blockera även under pausen
 
       pauseTimer=setInterval(()=>{
         pauseRemaining--;
@@ -187,7 +189,8 @@
           pauseTimerDisplay.innerText='';
           checklist.style.display='block';
           checklistProgress.style.display='block';
-          startMainTimer(); // återuppta huvudtimer men spärren släpps inte
+          startMainTimer(); 
+          // OBS: INTE disableBlockReload() här! 
         } else {
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
         }
@@ -209,7 +212,8 @@
       updateChecklistProgress();
       pauseBtn.disabled=true;
       startBtn.disabled=false;
-      disableBlockReload(); // spärr släpper
+      startBtn.classList.remove("used");
+      disableBlockReload(); // spärrar släpps här
     }
 
     startBtn.addEventListener('click',startMainTimer);
@@ -218,8 +222,14 @@
     resetAllBtn.addEventListener('click',resetAll);
 
     window.addEventListener('load',()=>{
-      if(localStorage.getItem('endTime')){
+      if(startedOnce){
+        startBtn.disabled = true;
+        startBtn.classList.add("used");
+        if(!pausedOnce) pauseBtn.disabled = false;
         startMainTimer();
+      } else {
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
       }
     });
   </script>
