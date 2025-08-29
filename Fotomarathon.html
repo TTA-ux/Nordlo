@@ -52,7 +52,7 @@
       <div id="timerDisplay">75:00</div>
       <div id="pauseTimerDisplay"></div>
       <div id="checklistProgress">0% klara</div>
-      <button id="startTimerBtn">Starta timer</button>
+      <button id="startTimerBtn">Starta tävlingen</button>
       <button id="pauseBtn" disabled>Pausa 10 min</button>
       <button id="resetTimerBtn">Nollställ timer</button>
       <button id="releaseLocksBtn">Släpp alla spärrar</button>
@@ -258,7 +258,7 @@
       // Endast en paus tillåten
       if (localStorage.getItem(KEY_PAUSED_ONCE) === 'true') return;
 
-      if (!confirm("OBS! Denna går att använda endast en gång!\nÄr du säker på att du vill pausa?")) return;
+      if (!confirm("OBS! Detta går att använda endast en gång!\nÄr du säker på att du vill pausa?")) return;
 
       // Markera att paus använts
       localStorage.setItem(KEY_PAUSED_ONCE, 'true');
