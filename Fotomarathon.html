@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FOTOMARATHON</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f9; margin:0; padding:0; }
@@ -16,22 +16,15 @@
     input[type="checkbox"] { transform: scale(1.5); margin-right: 12px; }
     label { font-size: 16px; }
     #timerDisplay, #pauseTimerDisplay { font-size: 24px; font-weight: bold; margin: 5px; text-align:center; }
-    #checklistProgress { margin-top: 10px; font-size: 16px; text-align:center; }
-    .controls { text-align:center; margin-bottom: 20px; }
-    button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; color: white; cursor: pointer; touch-action: manipulation; }
+    #checklistProgress { margin-top: 10px; font-size: 16px; }
+    button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; color: white; cursor: pointer; }
     #startTimerBtn { background-color: #4CAF50; }
     #pauseBtn { background-color: #888; }
     #resetTimerBtn { background-color: #f44336; }
     #releaseLocksBtn { background-color: #2196F3; }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
     #pauseTimerDisplay { color: red; }
-    /* mobilvänligt större klickområde */
-    @media (max-width: 480px) {
-      button { padding: 12px 18px; font-size: 18px; }
-      input[type="checkbox"] { transform: scale(1.4); }
-    }
   </style>
-
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
@@ -48,11 +41,11 @@
       <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
     </div>
 
-    <div class="controls">
+    <div style="text-align:center; margin-bottom: 20px;">
       <div id="timerDisplay">75:00</div>
       <div id="pauseTimerDisplay"></div>
       <div id="checklistProgress">0% klara</div>
-      <button id="startTimerBtn">Starta tävlingen</button>
+      <button id="startTimerBtn">Starta timer</button>
       <button id="pauseBtn" disabled>Pausa 10 min</button>
       <button id="resetTimerBtn">Nollställ timer</button>
       <button id="releaseLocksBtn">Släpp alla spärrar</button>
@@ -62,22 +55,6 @@
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // --- Konstanter ---
-    const totalDurationSec = 11 * 60; // 75 minuter i sekunder
-    const pauseDurationSec = 1 * 60; // 10 minuter i sekunder
-
-    // --- Element ---
-    const checklist = document.getElementById('checklist');
-    const checklistProgress = document.getElementById('checklistProgress');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const pauseTimerDisplay = document.getElementById('pauseTimerDisplay');
-    const startBtn = document.getElementById('startTimerBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const resetBtn = document.getElementById('resetTimerBtn');
-    const releaseBtn = document.getElementById('releaseLocksBtn');
-
-    // --- Items ---
     const items = [
       'En gruppbild på det minsta utrymmet ni får plats i',
       'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)',
@@ -103,321 +80,146 @@
       'Återskapa skivomslaget till Beatles - Abbey road'
     ];
 
-    // --- State & timers ---
-    let mainInterval = null;
-    let pauseInterval = null;
-    // localStorage-nycklar (prefix fm_)
-    const KEY_ENDTIME = 'fm_endTime';          // timestamp (ms) när huvudtimer går ut
-    const KEY_PAUSE_END = 'fm_pauseEndTime';   // timestamp (ms) när paustimer går ut
-    const KEY_MAIN_REMAIN = 'fm_mainRemaining';// kvar i sekunder (sparas när paus startas)
-    const KEY_PAUSED_ONCE = 'fm_pausedOnce';   // "true" om paus redan använd
-    // använd för beforeunload-blockering
-    function isUnloadBlocked() {
-      return !!(localStorage.getItem(KEY_ENDTIME) || localStorage.getItem(KEY_PAUSE_END));
-    }
-    window.addEventListener('beforeunload', (e) => {
-      if (isUnloadBlocked()) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    });
-
-    // --- Bygg checklist och läs sparade states för kryssrutor ---
-    items.forEach((item, index) => {
+    const checklist = document.getElementById('checklist');
+    items.forEach((item,index)=>{
       const li = document.createElement('li');
       const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.id = `task${index+1}`;
-      // läs sparat
-      if (localStorage.getItem(checkbox.id) === 'true') checkbox.checked = true;
-      checkbox.addEventListener('change', () => {
-        localStorage.setItem(checkbox.id, checkbox.checked);
+      checkbox.type='checkbox';
+      checkbox.id=`task${index+1}`;
+      if(localStorage.getItem(checkbox.id)==='true') checkbox.checked=true;
+      checkbox.addEventListener('change',()=>{
+        localStorage.setItem(checkbox.id,checkbox.checked);
         updateChecklistProgress();
-        // confetti på mobil när bockas
-        if (checkbox.checked && /Mobi|Android/i.test(navigator.userAgent)) {
-          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        if(checkbox.checked && /Mobi|Android/i.test(navigator.userAgent)){
+          confetti({particleCount:100, spread:70, origin:{y:0.6}});
         }
       });
       const label = document.createElement('label');
-      label.htmlFor = checkbox.id;
-      label.innerText = item;
+      label.htmlFor=checkbox.id;
+      label.innerText=item;
       li.appendChild(checkbox);
       li.appendChild(label);
       checklist.appendChild(li);
     });
 
-    function updateChecklistProgress() {
+    const checklistProgress = document.getElementById('checklistProgress');
+    function updateChecklistProgress(){
       const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
-      const total = checkboxes.length || 1;
-      const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
-      checklistProgress.innerText = `${Math.round((checked / total) * 100)}% klara`;
+      const total = checkboxes.length;
+      const checked = Array.from(checkboxes).filter(cb=>cb.checked).length;
+      checklistProgress.innerText = `${Math.round((checked/total)*100)}% klara`;
     }
     updateChecklistProgress();
 
-    // --- Hjälpfunktioner för tidformat ---
-    function formatTime(seconds) {
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
-      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    const timerDisplay = document.getElementById('timerDisplay');
+    const pauseTimerDisplay = document.getElementById('pauseTimerDisplay');
+    const startBtn = document.getElementById('startTimerBtn');
+    const resetBtn = document.getElementById('resetTimerBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const releaseBtn = document.getElementById('releaseLocksBtn');
+
+    let totalDuration = 75*60*1000;
+    let pauseDuration = 10*60*1000;
+    let timer, pauseTimer;
+    let timerStarted = false;
+    let pausedOnce = localStorage.getItem('pausedOnce')==='true';
+    let mainRemaining = totalDuration;
+
+    function formatTime(seconds){ 
+      const m=Math.floor(seconds/60), s=seconds%60; 
+      return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; 
     }
 
-    // --- Tidslogik med endTime-approach (så att paus inte "äter" tid) ---
-    function getEndTime() {
-      const v = localStorage.getItem(KEY_ENDTIME);
-      return v ? Number(v) : null;
-    }
-    function setEndTime(ts) {
-      if (ts === null) localStorage.removeItem(KEY_ENDTIME);
-      else localStorage.setItem(KEY_ENDTIME, String(ts));
-    }
-    function getPauseEndTime() {
-      const v = localStorage.getItem(KEY_PAUSE_END);
-      return v ? Number(v) : null;
-    }
-    function setPauseEndTime(ts) {
-      if (ts === null) localStorage.removeItem(KEY_PAUSE_END);
-      else localStorage.setItem(KEY_PAUSE_END, String(ts));
-    }
-    function getMainRemainingSaved() {
-      const v = localStorage.getItem(KEY_MAIN_REMAIN);
-      return v ? Number(v) : null;
-    }
-    function setMainRemainingSaved(sec) {
-      if (sec === null) localStorage.removeItem(KEY_MAIN_REMAIN);
-      else localStorage.setItem(KEY_MAIN_REMAIN, String(sec));
-    }
+    function startMainTimer(){
+      if(timerStarted) return;
+      timerStarted = true;
+      startBtn.disabled = true;
+      startBtn.style.backgroundColor = "#888";
+      pauseBtn.disabled = false;
+      pauseBtn.style.backgroundColor = "#4CAF50";
 
-    // --- UI uppdateringar ---
-    function setStartButtonActive(active) {
-      startBtn.disabled = !active;
-      startBtn.style.backgroundColor = active ? '#4CAF50' : '#888';
-    }
-    function setPauseButtonEnabled(enabled) {
-      pauseBtn.disabled = !enabled;
-      pauseBtn.style.backgroundColor = enabled ? '#4CAF50' : '#888';
-    }
-    function showChecklist(show) {
-      checklist.style.display = show ? 'block' : 'none';
-    }
+      checklist.style.display = "block";
 
-    // --- Huvudtimer: starta/återuppta från localStorage KEY_ENDTIME ---
-    function startMainIntervalFromEndtime() {
-      clearInterval(mainInterval);
-      const endTime = getEndTime();
-      if (!endTime) {
-        // inget att starta
-        return;
-      }
-      // visa checklist
-      showChecklist(true);
-      setStartButtonActive(false);
-      // Pausknapp aktiveras om paus inte redan använts
-      const pausedOnce = localStorage.getItem(KEY_PAUSED_ONCE) === 'true';
-      setPauseButtonEnabled(!pausedOnce);
+      if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
 
-      mainInterval = setInterval(() => {
-        const now = Date.now();
-        let remainSec = Math.ceil((endTime - now) / 1000);
-        if (remainSec <= 0) {
-          clearInterval(mainInterval);
-          setEndTime(null);
-          setMainRemainingSaved(null);
-          localStorage.removeItem(KEY_PAUSED_ONCE); // återställ paus-användning när runda slut
-          pauseTimerDisplay.innerText = '';
-          timerDisplay.innerText = formatTime(0);
-          setPauseButtonEnabled(false);
-          // Nu är rundan slut — tillåt reload igen
-          // (no localStorage endTime/pauseEnd kvar => beforeunload inte blockeras)
-          return;
+      clearInterval(timer);
+      timer=setInterval(()=>{
+        const elapsed = Date.now()-localStorage.getItem('timerStart');
+        mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
+        if(mainRemaining<=0) {
+          mainRemaining=0;
+          clearInterval(timer);
+          localStorage.removeItem('pausedOnce');
+          localStorage.removeItem('timerStart');
+          localStorage.removeItem('pauseStart');
+          pauseBtn.disabled=false;
+          pauseBtn.style.backgroundColor="#4CAF50";
+
+          // 📳 När tiden är slut
+          if("vibrate" in navigator){
+            navigator.vibrate(10000);
+          }
+          alert("Tävlingen är över!");
         }
-        timerDisplay.innerText = formatTime(remainSec);
-      }, 1000);
 
-      // uppdatera för beforeunload
-      // (we rely on isUnloadBlocked)
+        // 📳 Vid 5 min kvar
+        if(mainRemaining === 300){
+          if("vibrate" in navigator){
+            navigator.vibrate(10000);
+          }
+          alert("5 minuter kvar av tävlingen!");
+        }
+
+        timerDisplay.innerText=formatTime(mainRemaining);
+      },1000);
     }
 
-    // --- Start knapp (ny start) ---
-    function handleStartClick() {
-      // Om det redan finns ett endTime i localStorage, använd det (vi är efter refresh)
-      if (!getEndTime()) {
-        // sätt nytt endTime från nu + totalDuration
-        const newEnd = Date.now() + totalDurationSec * 1000;
-        setEndTime(newEnd);
-      }
-      // Starta huvudintervallet
-      startMainIntervalFromEndtime();
-    }
+    function startPause(){
+      if(!timerStarted) return;
+      if(pausedOnce) return;
+      if(!confirm("OBS! Denna går att använda endast en gång!\nÄr du säker på att du vill pausa?")) return;
 
-    // --- Pauslogik ---
-    function startPause() {
-      // Kontrollera att vi faktiskt har en aktiv huvudtimer
-      const endTime = getEndTime();
-      if (!endTime) return;
+      pausedOnce=true;
+      localStorage.setItem('pausedOnce','true');
 
-      // Endast en paus tillåten
-      if (localStorage.getItem(KEY_PAUSED_ONCE) === 'true') return;
+      clearInterval(timer);
+      localStorage.setItem('pauseStart',Date.now());
+      pauseBtn.disabled=true;
+      pauseBtn.style.backgroundColor="#888";
 
-      if (!confirm("OBS! Detta går att använda endast en gång!\nÄr du säker på att du vill pausa?")) return;
+      let pauseRemaining = pauseDuration/1000;
+      pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
 
-      // Markera att paus använts
-      localStorage.setItem(KEY_PAUSED_ONCE, 'true');
-
-      // Spara hur mycket som återstår på huvudtimern
-      const remainMainSec = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
-      setMainRemainingSaved(remainMainSec);
-      // Ta bort endTime (huvudtimer stoppas logiskt)
-      setEndTime(null);
-
-      // Starta paustimer: sätt pauseEndTime
-      const pauseEnd = Date.now() + pauseDurationSec * 1000;
-      setPauseEndTime(pauseEnd);
-
-      // Rensa huvudintervallet
-      if (mainInterval) { clearInterval(mainInterval); mainInterval = null; }
-
-      // UI: inaktivera paus-knappen (den ska inte gå att klicka igen), göm checklist och visa paustid
-      setPauseButtonEnabled(false);
-      showChecklist(false);
-      pauseTimerDisplay.innerText = 'Paus ' + formatTime(pauseDurationSec);
-      timerDisplay.innerText = formatTime(getMainRemainingSaved() || 0);
-
-      // Starta paus-intervallet
-      startPauseIntervalFromPauseEnd();
-    }
-
-    function startPauseIntervalFromPauseEnd() {
-      clearInterval(pauseInterval);
-      const pEnd = getPauseEndTime();
-      if (!pEnd) return;
-
-      pauseInterval = setInterval(() => {
-        const now = Date.now();
-        const remain = Math.ceil((pEnd - now) / 1000);
-        if (remain <= 0) {
-          clearInterval(pauseInterval);
-          setPauseEndTime(null);
-
-          // Återuppta huvudtimer med kvarvarande tid som vi sparade
-          const savedMainRemain = getMainRemainingSaved();
-          const newEnd = Date.now() + (savedMainRemain || 0) * 1000;
-          setMainRemainingSaved(null);
-          setEndTime(newEnd);
-
-          // Visa checklist igen och starta huvudintervallet
-          showChecklist(true);
-          pauseTimerDisplay.innerText = '';
-          startMainIntervalFromEndtime();
-          // pauseknapp ska vara inaktiverad efter användning
-          setPauseButtonEnabled(false);
-          // keep pausedOnce set - den finns i localStorage
-          return;
+      pauseTimer = setInterval(()=>{
+        pauseRemaining--;
+        if(pauseRemaining<=0){
+          clearInterval(pauseTimer);
+          pauseTimerDisplay.innerText='';
+          startMainTimer();
         } else {
-          pauseTimerDisplay.innerText = 'Paus ' + formatTime(remain);
+          pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
         }
-      }, 1000);
+      },1000);
     }
 
-    // --- Release / reset to initial state (Släpp alla spärrar) ---
-    function handleReleaseLocks() {
-      if (!confirm("Vill ni verkligen släppa alla spärrar? Detta återställer allt till ursprungsläget.")) return;
-
-      // Stoppa alla intervaller
-      if (mainInterval) { clearInterval(mainInterval); mainInterval = null; }
-      if (pauseInterval) { clearInterval(pauseInterval); pauseInterval = null; }
-
-      // Rensa localStorage-nycklar relaterade till timer & paus (behåll checkbox-state? användaren ville avmarkera dem)
-      setEndTime(null);
-      setPauseEndTime(null);
-      setMainRemainingSaved(null);
-      localStorage.removeItem(KEY_PAUSED_ONCE);
-
-      // Avmarkera checklistans kryssrutor och rensa deras sparade state
-      const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach(cb => {
-        cb.checked = false;
-        localStorage.setItem(cb.id, 'false');
-      });
-
-      // UI tillbaka till ursprung
-      showChecklist(false);
-      timerDisplay.innerText = formatTime(totalDurationSec);
-      pauseTimerDisplay.innerText = '';
-      setStartButtonActive(true);
-      setPauseButtonEnabled(false);
-      updateChecklistProgress();
-    }
-
-    // --- Nollställ-knapp (visar bara meddelande) ---
-    function handleResetBtn() {
+    resetBtn.addEventListener('click', () => {
       alert("APP-APP-APP!\nFörsök inte fuska!\n\nEtt meddelande har skickats till ledningen att ni tryckt på denna knapp!");
-    }
-
-    // --- Initiering: kolla localStorage för att återuppta ev. igångvarande timer eller paus ---
-    function initFromStorage() {
-      const pEnd = getPauseEndTime();
-      const eTime = getEndTime();
-
-      // Om paustimer finns — återuppta paustimer (kryssrutor gömda)
-      if (pEnd) {
-        // Stäng av eventuella huvudintervaller
-        if (mainInterval) { clearInterval(mainInterval); mainInterval = null; }
-        showChecklist(false);
-        setStartButtonActive(false); // startknapp inaktiv när runda påbörjad
-        setPauseButtonEnabled(false); // pausknappen redan använd/aktiverad beroende - men vi gör disabled för nu medan paus pågår
-        startPauseIntervalFromPauseEnd();
-        // även visa eventuellt sparat main-remaining i timerdisplay
-        const saved = getMainRemainingSaved();
-        timerDisplay.innerText = formatTime(saved !== null ? saved : totalDurationSec);
-        return;
-      }
-
-      // Om huvud-endtime finns — återuppta huvudtimer
-      if (eTime) {
-        startMainIntervalFromEndtime();
-        return;
-      }
-
-      // Annars: initialt läge
-      showChecklist(false);
-      timerDisplay.innerText = formatTime(totalDurationSec);
-      pauseTimerDisplay.innerText = '';
-      setStartButtonActive(true);
-      setPauseButtonEnabled(false);
-    }
-
-    // --- Eventlisteners för knappar ---
-    startBtn.addEventListener('click', () => {
-      // start: sätt blockering för reload implicit genom att skapa endTime
-      handleStartClick();
     });
 
-    pauseBtn.addEventListener('click', () => {
-      // pausa: blockera reload (sker när vi sätter pauseEndTime)
-      startPause();
-    });
+    startBtn.addEventListener('click', startMainTimer);
+    pauseBtn.addEventListener('click', startPause);
 
-    resetBtn.addEventListener('click', handleResetBtn);
-    releaseBtn.addEventListener('click', handleReleaseLocks);
-
-    // --- Vid sida-laddning: initiera utifrån localStorage ---
-    initFromStorage();
-
-    // --- För att UI ska uppdateras vid ändringar orsakade utifrån (t.ex. manual localStorage edit),
-    //     lyssna storage-event (kan hjälpa när flera flikar) ---
-    window.addEventListener('storage', (e) => {
-      if ([KEY_ENDTIME, KEY_PAUSE_END, KEY_MAIN_REMAIN, KEY_PAUSED_ONCE].includes(e.key)) {
-        // enkel återinit
-        if (mainInterval) { clearInterval(mainInterval); mainInterval = null; }
-        if (pauseInterval) { clearInterval(pauseInterval); pauseInterval = null; }
-        initFromStorage();
+    releaseBtn.addEventListener('click',()=>{
+      if(confirm("Vill ni verkligen släppa alla spärrar?")){
+        const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb=>{
+          cb.checked=false;
+          localStorage.setItem(cb.id,false);
+        });
+        updateChecklistProgress();
       }
     });
 
-    // --- Säkerställ att checklist-progress visas korrekt (vid inläsning) ---
-    updateChecklistProgress();
-
-  }); // DOMContentLoaded end
   </script>
 </body>
 </html>
