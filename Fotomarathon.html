@@ -1,111 +1,232 @@
 <!DOCTYPE html>
-<html>
+<html lang="sv">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOTOMARATHON</title>
   <style>
-    button { padding:10px 20px; margin:5px; font-size:16px; }
-    #startTimerBtn.active { background-color: #4CAF50; color:white; }
-    #pauseBtn.active { background-color: #4CAF50; color:white; }
-    button.disabled { background-color: #999; color:#666; }
+    body { font-family: Arial, sans-serif; background: #f4f4f9; margin:0; padding:0; }
+    .logo { width: 100%; display: block; }
+    .container { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 10px; }
+    h2 { text-align: center; margin: 5px 0; }
+    .instructions { background: #eef; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+    .rules-title { text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 10px 0; display: flex; align-items: center; }
+    input[type="checkbox"] { transform: scale(1.5); margin-right: 12px; }
+    label { font-size: 16px; }
+    #timerDisplay, #pauseTimerDisplay { font-size: 24px; font-weight: bold; margin: 5px; text-align:center; }
+    #checklistProgress { margin-top: 10px; font-size: 16px; }
+    button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; color: white; cursor: pointer; }
+    button.active { background-color: #4CAF50; }
+    button.disabled { background-color: #999; cursor: not-allowed; }
+    #pauseTimerDisplay { color: red; }
+    #resetAllBtn { background-color: #f44336; }
+    #resetAllBtn:hover:enabled { background-color: #e53935; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
+  <img src="NORDLO.png" alt="Logo" class="logo">
+  <div class="container">
+    <h2>FOTOMARATHON</h2>
+    <h2>Lloret de Mar</h2>
 
-<div>
-  <div id="timerDisplay">75:00</div>
-  <div id="pauseTimerDisplay"></div>
-</div>
+    <div class="instructions">
+      <div class="rules-title">REGLER</div>
+      <p>- Alla i laget ska synas på alla bilderna.</p>
+      <p>- En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
+      <p>- Laget måste vara tillbaka exakt 75 minuter efter att startsignalen går.</p>
+      <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
+    </div>
 
-<button id="startTimerBtn">Starta Timer</button>
-<button id="pauseBtn">Pausa Timer</button>
+    <div style="text-align:center; margin-bottom: 20px;">
+      <div id="timerDisplay">75:00</div>
+      <div id="pauseTimerDisplay"></div>
+      <div id="checklistProgress">0% klara</div>
+      <button id="startTimerBtn" class="active">Starta timer</button>
+      <button id="resetTimerBtn" class="active">Nollställ timer</button>
+      <button id="pauseBtn" class="disabled" disabled>Pausa 10 min</button>
+      <button id="resetAllBtn">Släpp alla spärrar</button>
+    </div>
 
-<script>
-const timerDisplay = document.getElementById('timerDisplay');
-const pauseTimerDisplay = document.getElementById('pauseTimerDisplay');
-const startBtn = document.getElementById('startTimerBtn');
-const pauseBtn = document.getElementById('pauseBtn');
+    <ul id="checklist"></ul>
+  </div>
 
-let totalDuration = 75*60; // i sekunder
-let pauseDuration = 10*60; // i sekunder
-let mainTimer, pauseTimer;
+  <script>
+    const items = [
+      'En gruppbild på det minsta utrymmet ni får plats i',
+      'Bygg något tillsammans',
+      'En oväntad vänskap...!',
+      'Alla i laget gör samma sak',
+      'En “olycka” på semestern',
+      'Havstema',
+      'Före & efter – ta två bilder bredvid varandra',
+      'Skriv NORDLO i sanden',
+      'Kläm ihop nåt jättestort',
+      'Det minsta och största ni hittar',
+      'Gör honnör framför en fontän!',
+      'Krama en palm!',
+      'Gör tummen upp framför Iglesia de San Román',
+      'Turistfällan – posera framför nåt vardagligt',
+      'Alla är vända bort från kameran',
+      'Ta en gruppbild med ett djur',
+      'Peta på en motorcykel',
+      'Ramla! (roliga gatan fram)',
+      'Ha en livlig argumentation',
+      'Spela fotboll',
+      'Ät nåt litet men gapa stort',
+      'Återskapa Beatles Abbey Road'
+    ];
 
-function formatTime(seconds){ 
-  const m=Math.floor(seconds/60), s=seconds%60; 
-  return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; 
-}
+    const checklist = document.getElementById('checklist');
+    const checklistProgress = document.getElementById('checklistProgress');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const pauseTimerDisplay = document.getElementById('pauseTimerDisplay');
+    const startBtn = document.getElementById('startTimerBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetTimerBtn');
+    const resetAllBtn = document.getElementById('resetAllBtn');
 
-function updateButtons(state){
-  // state = "initial", "running", "paused"
-  switch(state){
-    case "initial":
-      startBtn.disabled = false; startBtn.className="active";
-      pauseBtn.disabled = true; pauseBtn.className="disabled";
-      window.removeEventListener("beforeunload", blockReload);
-      break;
-    case "running":
-      startBtn.disabled = true; startBtn.className="disabled";
-      pauseBtn.disabled = false; pauseBtn.className="active";
-      window.addEventListener("beforeunload", blockReload);
-      break;
-    case "paused":
-      startBtn.disabled = true; startBtn.className="disabled";
-      pauseBtn.disabled = true; pauseBtn.className="disabled";
-      window.addEventListener("beforeunload", blockReload);
-      break;
-  }
-}
+    let totalDuration = 75*60; // sekunder
+    let pauseDuration = 10*60; // sekunder
+    let timer, pauseTimer;
+    let startedOnce = localStorage.getItem('startedOnce')==='true';
+    let pausedOnce = localStorage.getItem('pausedOnce')==='true';
+    let endTime = localStorage.getItem('endTime') ? parseInt(localStorage.getItem('endTime')) : null;
+    let pauseEndTime = localStorage.getItem('pauseEndTime') ? parseInt(localStorage.getItem('pauseEndTime')) : null;
 
-function blockReload(e){
-  e.preventDefault();
-  e.returnValue = "Timer pågår!";
-}
-
-function startMainTimer(){
-  updateButtons("running");
-  let remaining = totalDuration;
-  timerDisplay.innerText = formatTime(remaining);
-
-  clearInterval(mainTimer);
-  mainTimer = setInterval(()=>{
-    remaining--;
-    timerDisplay.innerText = formatTime(remaining);
-    if(remaining <= 0){
-      clearInterval(mainTimer);
-      resetToStart();
+    function formatTime(seconds){
+      const m = Math.floor(seconds/60);
+      const s = seconds % 60;
+      return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
     }
-  },1000);
-}
 
-function startPause(){
-  updateButtons("paused");
-  clearInterval(mainTimer);
+    function updateChecklistProgress(){
+      const total = items.length;
+      const checked = Array.from(checklist.querySelectorAll('input[type="checkbox"]')).filter(cb=>cb.checked).length;
+      checklistProgress.innerText = `${Math.round((checked/total)*100)}% klara`;
+    }
 
-  let remaining = pauseDuration;
-  pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
+    // Skapa kryssrutorna
+    items.forEach((item,index)=>{
+      const li = document.createElement('li');
+      const cb = document.createElement('input');
+      cb.type='checkbox';
+      cb.id='task'+index;
+      if(localStorage.getItem(cb.id)==='true') cb.checked=true;
+      cb.addEventListener('change',()=>{
+        localStorage.setItem(cb.id, cb.checked);
+        updateChecklistProgress();
+        if(cb.checked && /Mobi|Android/i.test(navigator.userAgent)){
+          confetti({particleCount:100, spread:70, origin:{y:0.6}});
+        }
+      });
+      const label = document.createElement('label');
+      label.htmlFor = cb.id;
+      label.innerText = item;
+      li.appendChild(cb);
+      li.appendChild(label);
+      checklist.appendChild(li);
+    });
+    updateChecklistProgress();
 
-  clearInterval(pauseTimer);
-  pauseTimer = setInterval(()=>{
-    remaining--;
-    pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
-    if(remaining <= 0){
+    function updateButtons(state){
+      switch(state){
+        case "initial":
+          startBtn.disabled = false; startBtn.className="active";
+          pauseBtn.disabled = true; pauseBtn.className="disabled";
+          window.removeEventListener('beforeunload', blockReload);
+          break;
+        case "running":
+          startBtn.disabled = true; startBtn.className="disabled";
+          pauseBtn.disabled = false; pauseBtn.className="active";
+          window.addEventListener('beforeunload', blockReload);
+          break;
+        case "paused":
+          startBtn.disabled = true; startBtn.className="disabled";
+          pauseBtn.disabled = true; pauseBtn.className="disabled";
+          window.addEventListener('beforeunload', blockReload);
+          break;
+      }
+    }
+
+    function blockReload(e){
+      e.preventDefault();
+      e.returnValue = '';
+    }
+
+    function startMainTimer(){
+      if(startedOnce) return;
+      startedOnce = true;
+      localStorage.setItem('startedOnce','true');
+      updateButtons('running');
+
+      if(!endTime) endTime = Date.now()/1000 + totalDuration;
+      localStorage.setItem('endTime', endTime);
+
+      clearInterval(timer);
+      timer = setInterval(()=>{
+        let remaining = Math.round(endTime - Date.now()/1000);
+        if(remaining<=0){
+          clearInterval(timer);
+          remaining = 0;
+          resetToStart();
+        }
+        timerDisplay.innerText = formatTime(remaining);
+      },1000);
+    }
+
+    function startPauseTimer(){
+      pausedOnce = true;
+      localStorage.setItem('pausedOnce','true');
+      updateButtons('paused');
+
+      if(!pauseEndTime) pauseEndTime = Date.now()/1000 + pauseDuration;
+      localStorage.setItem('pauseEndTime', pauseEndTime);
+
       clearInterval(pauseTimer);
-      pauseTimerDisplay.innerText = "";
-      startMainTimer();
+      pauseTimer = setInterval(()=>{
+        let remaining = Math.round(pauseEndTime - Date.now()/1000);
+        if(remaining<=0){
+          clearInterval(pauseTimer);
+          remaining = 0;
+          resetToStart();
+        }
+        pauseTimerDisplay.innerText = formatTime(remaining);
+      },1000);
     }
-  },1000);
-}
 
-function resetToStart(){
-  updateButtons("initial");
-  timerDisplay.innerText = formatTime(totalDuration);
-  pauseTimerDisplay.innerText = "";
-}
+    function resetToStart(){
+      clearInterval(timer);
+      clearInterval(pauseTimer);
+      timerDisplay.innerText = formatTime(totalDuration);
+      pauseTimerDisplay.innerText = '';
+      endTime = null;
+      pauseEndTime = null;
+      startedOnce = false;
+      pausedOnce = false;
+      localStorage.removeItem('endTime');
+      localStorage.removeItem('pauseEndTime');
+      localStorage.setItem('startedOnce','false');
+      localStorage.setItem('pausedOnce','false');
+      updateButtons('initial');
+    }
 
-startBtn.addEventListener('click', startMainTimer);
-pauseBtn.addEventListener('click', startPause);
+    startBtn.addEventListener('click', startMainTimer);
+    pauseBtn.addEventListener('click', startPauseTimer);
+    resetBtn.addEventListener('click', resetToStart);
+    resetAllBtn.addEventListener('click', ()=>{
+      localStorage.clear();
+      location.reload();
+    });
 
-// Initial status vid sidstart
-window.addEventListener('load', resetToStart);
-</script>
-
+    // Vid sidstart
+    if(startedOnce && endTime){
+      startMainTimer();
+    } else {
+      updateButtons('initial');
+    }
+  </script>
 </body>
 </html>
