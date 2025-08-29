@@ -17,13 +17,12 @@
     label { font-size: 16px; }
     #timerDisplay, #pauseTimerDisplay { font-size: 24px; font-weight: bold; margin: 5px; text-align:center; }
     #checklistProgress { margin-top: 10px; font-size: 16px; }
-    button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; cursor: pointer; }
-    #startTimerBtn { background-color: #4CAF50; color: white; }
-    #startTimerBtn:disabled { background-color: #aaa; color: #666; }
-    #pauseBtn { background-color: #888; color: white; }
-    #pauseBtn:disabled { background-color: #ccc; color: #666; }
-    #resetTimerBtn { background-color: #f44336; color: white; }
-    #releaseBtn { background-color: #2196F3; color: white; }
+    button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; color: white; cursor: pointer; }
+    #startTimerBtn { background-color: #4CAF50; }
+    #pauseBtn { background-color: #888; }
+    #resetTimerBtn { background-color: #f44336; }
+    #releaseLocksBtn { background-color: #2196F3; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
     #pauseTimerDisplay { color: red; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -37,8 +36,8 @@
     <div class="instructions">
       <div class="rules-title">REGLER</div>
       <p>- Alla i laget ska synas på alla bilderna.</p>
-      <p>- En person måste alltid utföra samma sak på alla bilder.</p>
-      <p>- Laget måste vara tillbaka exakt 75 minuter efter startsignalen.</p>
+      <p>- En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
+      <p>- Laget måste vara tillbaka exakt 75 minuter efter att startsignalen går.</p>
       <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
     </div>
 
@@ -47,9 +46,9 @@
       <div id="pauseTimerDisplay"></div>
       <div id="checklistProgress">0% klara</div>
       <button id="startTimerBtn">Starta timer</button>
-      <button id="resetTimerBtn">Nollställ timer</button>
       <button id="pauseBtn" disabled>Pausa 10 min</button>
-      <button id="releaseBtn">Släpp alla spärrar</button>
+      <button id="resetTimerBtn">Nollställ timer</button>
+      <button id="releaseLocksBtn">Släpp alla spärrar</button>
     </div>
 
     <ul id="checklist"></ul>
@@ -58,26 +57,26 @@
   <script>
     const items = [
       'En gruppbild på det minsta utrymmet ni får plats i',
-      'Bygg något tillsammans',
+      'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)',
       'En oväntad vänskap...!',
-      'Alla i laget gör samma sak',
+      'Alla i laget gör samma sak (tex Alla i luften, alla på huk, walk like an egyptian...)',
       'En “olycka” på semestern',
       'Havstema',
-      'Före & efter – två bilder bredvid varandra',
-      'Skriv NORDLO i sanden på stranden',
+      'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.',
+      'Skriv NORDLO i sanden på stranden och ta en gruppbild',
       'Kläm ihop nåt jättestort',
-      'Det minsta och största ni hittar',
+      'Det minsta och största ni hittar, som ryms i en hand',
       'Gör honnör framför en fontän!',
       'Krama en palm!',
       'Gör tummen upp framför Iglesia de San Román',
-      'Turistfällan – posera framför något vardagligt',
+      'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet',
       'Alla är vända bort från kameran',
-      'Ta en gruppbild med ett djur',
-      'Peta på en motorcykel. En glad, andra förskräckta',
+      'Ta en gruppbild med en katt/hund/valfritt djur',
+      'Peta på en motorcykel. En ska se glad ut, alla andra förskräckta',
       'Ramla! (roliga gatan fram)',
       'Ha en livlig argumentation',
       'Spela fotboll',
-      'Ät nåt litet, men gapa så det ser jättestort ut',
+      'Ät nåt litet, men gapa så att det är nåt jättestort',
       'Återskapa skivomslaget till Beatles - Abbey road'
     ];
 
@@ -117,64 +116,75 @@
     const startBtn = document.getElementById('startTimerBtn');
     const resetBtn = document.getElementById('resetTimerBtn');
     const pauseBtn = document.getElementById('pauseBtn');
-    const releaseBtn = document.getElementById('releaseBtn');
+    const releaseBtn = document.getElementById('releaseLocksBtn');
 
     let totalDuration = 75*60*1000;
     let pauseDuration = 10*60*1000;
     let timer, pauseTimer;
+    let timerStarted = false;
     let pausedOnce = localStorage.getItem('pausedOnce')==='true';
     let mainRemaining = totalDuration;
-    let timerStarted = localStorage.getItem('timerStart') ? true : false;
 
     function formatTime(seconds){ 
       const m=Math.floor(seconds/60), s=seconds%60; 
       return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; 
     }
 
+    function updateChecklistProgress(){
+      const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
+      const total = checkboxes.length;
+      const checked = Array.from(checkboxes).filter(cb=>cb.checked).length;
+      checklistProgress.innerText = `${Math.round((checked/total)*100)}% klara`;
+    }
+
     function startMainTimer(){
       if(timerStarted) return;
-      timerStarted=true;
-      localStorage.setItem('timerStart',Date.now());
-      startBtn.disabled=true;
-      startBtn.style.backgroundColor="#aaa";
-      pauseBtn.disabled=false;
-      pauseBtn.style.backgroundColor="#888";
+      timerStarted = true;
+      startBtn.disabled = true;
+      startBtn.style.backgroundColor = "#888";
+      pauseBtn.disabled = false;
+      pauseBtn.style.backgroundColor = "#4CAF50";
+
+      if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
 
       clearInterval(timer);
       timer=setInterval(()=>{
         const elapsed = Date.now()-localStorage.getItem('timerStart');
         mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
-        if(mainRemaining<=0){
+        if(mainRemaining<=0) {
           mainRemaining=0;
           clearInterval(timer);
+          localStorage.removeItem('pausedOnce');
+          localStorage.removeItem('timerStart');
+          localStorage.removeItem('pauseStart');
+          pauseBtn.disabled=false;
+          pauseBtn.style.backgroundColor="#4CAF50";
         }
         timerDisplay.innerText=formatTime(mainRemaining);
       },1000);
     }
 
     function startPause(){
-      if(!timerStarted || pausedOnce) return;
-      if(!confirm("OBS! Pausen går endast en gång! Är du säker?")) return;
+      if(!timerStarted) return;
+      if(pausedOnce) return;
+      if(!confirm("OBS! Denna går att använda endast en gång!\nÄr du säker på att du vill pausa?")) return;
+
       pausedOnce=true;
       localStorage.setItem('pausedOnce','true');
 
-      clearInterval(timer);
-      pauseBtn.disabled=true;
-      pauseBtn.style.backgroundColor="#ccc";
-      startBtn.disabled=true;
-      startBtn.style.backgroundColor="#aaa";
-
+      clearInterval(timer); // pausa huvudtimer
       localStorage.setItem('pauseStart',Date.now());
+      pauseBtn.disabled=true;
+      pauseBtn.style.backgroundColor="#888";
+
       let pauseRemaining = pauseDuration/1000;
       pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
 
-      pauseTimer=setInterval(()=>{
+      pauseTimer = setInterval(()=>{
         pauseRemaining--;
         if(pauseRemaining<=0){
           clearInterval(pauseTimer);
           pauseTimerDisplay.innerText='';
-          const elapsed = Date.now() - localStorage.getItem('timerStart');
-          mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
           startMainTimer();
         } else {
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
@@ -187,48 +197,49 @@
       clearInterval(pauseTimer);
       localStorage.clear();
       mainRemaining = totalDuration;
-      timerDisplay.innerText=formatTime(mainRemaining);
-      pauseTimerDisplay.innerText='';
+      timerDisplay.innerText = formatTime(mainRemaining);
+      pauseTimerDisplay.innerText = '';
+
       startBtn.disabled=false;
       startBtn.style.backgroundColor="#4CAF50";
+
       pauseBtn.disabled=true;
       pauseBtn.style.backgroundColor="#888";
+
       checklist.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
       updateChecklistProgress();
     }
 
     startBtn.addEventListener('click',startMainTimer);
     pauseBtn.addEventListener('click',startPause);
-    resetBtn.addEventListener('click',()=>{
-      alert("APP-APP-APP!\nFörsök inte fuska!\n\nLedningen har nu fått ett mail om att ni tryckt på knappen!");
-    });
+    resetBtn.addEventListener('click',resetAll);
     releaseBtn.addEventListener('click',resetAll);
 
-    window.addEventListener('beforeunload', function(e){
+    window.addEventListener('beforeunload',function(e){
       if(timerStarted || pausedOnce){
         e.preventDefault();
         e.returnValue='';
       }
     });
 
-    // Återställ timer efter reload
-    if(timerStarted){
-      const elapsed = Date.now()-localStorage.getItem('timerStart');
-      mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
-      if(mainRemaining>0){
-        startMainTimer();
-      }
+    // Vid uppstart, om det finns lagrad tid
+    if(localStorage.getItem('timerStart')){
+      timerStarted=true;
+      startBtn.disabled=true;
+      startBtn.style.backgroundColor="#888";
+      pauseBtn.disabled=false;
+      pauseBtn.style.backgroundColor="#4CAF50";
+      startMainTimer();
     }
-
-    if(pausedOnce){
-      const pauseElapsed = Date.now()-localStorage.getItem('pauseStart');
-      let pauseRemaining = Math.ceil((pauseDuration-pauseElapsed)/1000);
+    if(localStorage.getItem('pauseStart')){
+      pausedOnce=true;
+      pauseBtn.disabled=true;
+      pauseBtn.style.backgroundColor="#888";
+      let pauseElapsed = Math.floor((Date.now()-localStorage.getItem('pauseStart'))/1000);
+      let pauseRemaining = Math.max(0, pauseDuration/1000 - pauseElapsed);
       if(pauseRemaining>0){
-        pauseBtn.disabled=true;
-        pauseBtn.style.backgroundColor="#ccc";
-        clearInterval(timer);
         pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
-        pauseTimer=setInterval(()=>{
+        pauseTimer = setInterval(()=>{
           pauseRemaining--;
           if(pauseRemaining<=0){
             clearInterval(pauseTimer);
@@ -238,6 +249,8 @@
             pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
           }
         },1000);
+      } else {
+        startMainTimer();
       }
     }
 
