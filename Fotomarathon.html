@@ -100,7 +100,7 @@
       <div id="checklistProgress">0% klara</div>
       <button id="startTimerBtn">Starta timer</button>
       <button id="resetTimerBtn">Nollställ timer</button>
-      <button id="pauseTimerBtn">Pausa</button>
+      <button id="pauseBtn">Pausa 10 min</button>
     </div>
 
     <ul id="checklist"></ul>
@@ -135,19 +135,7 @@
     ];
 
     const checklist = document.getElementById('checklist');
-    const checklistProgress = document.getElementById('checklistProgress');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const startBtn = document.getElementById('startTimerBtn');
-    const resetBtn = document.getElementById('resetTimerBtn');
-    const pauseBtn = document.getElementById('pauseTimerBtn');
 
-    let totalDuration = 75 * 60 * 1000;
-    let pauseDuration = 10 * 60 * 1000;
-    let timer;
-    let pauseTimer;
-    let pauseUsed = localStorage.getItem('pauseUsed') === 'true';
-
-    // Skapa checklistan
     items.forEach((item, index) => {
       const li = document.createElement('li');
       const checkbox = document.createElement('input');
@@ -155,7 +143,6 @@
 
       checkbox.type = 'checkbox';
       checkbox.id = `task${index+1}`;
-
       if (localStorage.getItem(checkbox.id) === 'true') {
         checkbox.checked = true;
       }
@@ -171,12 +158,12 @@
 
       label.htmlFor = checkbox.id;
       label.innerText = item;
-
       li.appendChild(checkbox);
       li.appendChild(label);
       checklist.appendChild(li);
     });
 
+    const checklistProgress = document.getElementById('checklistProgress');
     function updateChecklistProgress() {
       const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
       const total = checkboxes.length;
@@ -186,73 +173,94 @@
     }
     updateChecklistProgress();
 
-    function updateTimer(secondsLeft, prefix = "") {
+    const timerDisplay = document.getElementById('timerDisplay');
+    const startBtn = document.getElementById('startTimerBtn');
+    const resetBtn = document.getElementById('resetTimerBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+
+    let totalDuration = 75 * 60 * 1000;
+    let pauseDuration = 10 * 60 * 1000;
+    let timer, pauseTimer;
+    let pausedOnce = localStorage.getItem('pausedOnce') === 'true';
+
+    function updateTimer(secondsLeft, prefix='') {
       const minutes = Math.floor(secondsLeft / 60);
       const seconds = secondsLeft % 60;
-      timerDisplay.innerText = `${prefix}${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+      timerDisplay.innerText = prefix + `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
     }
 
     function startTimer() {
-      if (!localStorage.getItem('timerStart')) {
-        localStorage.setItem('timerStart', Date.now());
-      }
+      if (!localStorage.getItem('timerStart')) localStorage.setItem('timerStart', Date.now());
       clearInterval(timer);
       timer = setInterval(() => {
-        const startTime = parseInt(localStorage.getItem('timerStart'));
-        const elapsed = Date.now() - startTime;
+        const elapsed = Date.now() - localStorage.getItem('timerStart');
         let remaining = Math.ceil((totalDuration - elapsed) / 1000);
-        if (remaining <= 0) {
-          remaining = 0;
-          clearInterval(timer);
-        }
+        if (remaining <= 0) remaining = 0;
         updateTimer(remaining);
+        if (remaining <= 0) clearInterval(timer);
       }, 1000);
     }
 
     function startPause() {
-      if (pauseUsed) return;
+      if (pausedOnce) return;
       if (!confirm("OBS! Denna går att använda endast en gång!\nÄr du säker på att du vill pausa?")) return;
-      pauseUsed = true;
-      localStorage.setItem('pauseUsed', 'true');
+
+      pausedOnce = true;
+      localStorage.setItem('pausedOnce', 'true');
+
       clearInterval(timer);
+      localStorage.setItem('pauseStart', Date.now());
 
-      // Dölj alla kryssrutor under pausen
+      // göm alla kryssrutor
       checklist.style.display = 'none';
+      pauseBtn.style.display = 'none';
 
-      const pauseEnd = Date.now() + pauseDuration;
       pauseTimer = setInterval(() => {
-        let remaining = Math.ceil((pauseEnd - Date.now()) / 1000);
+        const elapsed = Date.now() - localStorage.getItem('pauseStart');
+        let remaining = Math.ceil((pauseDuration - elapsed) / 1000);
         if (remaining <= 0) {
           clearInterval(pauseTimer);
           checklist.style.display = 'block';
           startTimer();
         }
-        updateTimer(remaining, "Paus ");
+        updateTimer(remaining, 'Paus ');
       }, 1000);
-
-      pauseBtn.disabled = true;
-    }
-
-    function showCheatAlert() {
-      alert("APP-APP-APP!\nFörsök inte fuska!\n\nLedningen har nu fått ett mail om att ni tryckt på knappen!");
     }
 
     startBtn.addEventListener('click', startTimer);
+    resetBtn.addEventListener('click', () => {
+      alert("APP-APP-APP!\nFörsök inte fuska!\n\nLedningen har nu fått ett mail om att ni tryckt på knappen!");
+    });
     pauseBtn.addEventListener('click', startPause);
-    resetBtn.addEventListener('click', showCheatAlert);
+    pauseBtn.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      startPause();
+    }, { passive: false });
 
-    if (localStorage.getItem('timerStart')) {
-      startTimer();
-    } else {
-      updateTimer(totalDuration / 1000);
-    }
-
-    // Förhindra reload under paus
-    window.addEventListener('beforeunload', (e) => {
-      if (pauseUsed && pauseTimer) {
-        e.preventDefault();
-        e.returnValue = '';
+    // på omladdning under paus
+    window.addEventListener('load', () => {
+      if (localStorage.getItem('pauseStart')) {
+        const elapsed = Date.now() - localStorage.getItem('pauseStart');
+        if (elapsed < pauseDuration) {
+          pausedOnce = true;
+          checklist.style.display = 'none';
+          pauseBtn.style.display = 'none';
+          pauseTimer = setInterval(() => {
+            let remaining = Math.ceil((pauseDuration - (Date.now() - localStorage.getItem('pauseStart'))) / 1000);
+            if (remaining <= 0) {
+              clearInterval(pauseTimer);
+              checklist.style.display = 'block';
+              startTimer();
+            }
+            updateTimer(remaining, 'Paus ');
+          }, 1000);
+        } else {
+          localStorage.removeItem('pauseStart');
+        }
       }
+
+      if (localStorage.getItem('timerStart')) startTimer();
+      else updateTimer(totalDuration / 1000);
     });
   </script>
 </body>
