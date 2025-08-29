@@ -56,27 +56,27 @@
   <script>
     const items = [
       'En gruppbild på det minsta utrymmet ni får plats i',
-      'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)',
+      'Bygg något tillsammans',
       'En oväntad vänskap...!',
-      'Alla i laget gör samma sak (tex Alla i luften, alla på huk, walk like an egyptian...)',
+      'Alla i laget gör samma sak',
       'En “olycka” på semestern',
       'Havstema',
-      'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.',
-      'Skriv NORDLO i sanden på stranden och ta en gruppbild',
+      'Före & efter – ta två bilder bredvid varandra',
+      'Skriv NORDLO i sanden',
       'Kläm ihop nåt jättestort',
-      'Det minsta och största ni hittar, som ryms i en hand',
+      'Det minsta och största ni hittar',
       'Gör honnör framför en fontän!',
       'Krama en palm!',
       'Gör tummen upp framför Iglesia de San Román',
-      'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet',
+      'Turistfällan – posera framför nåt vardagligt',
       'Alla är vända bort från kameran',
-      'Ta en gruppbild med en katt/hund/valfritt djur',
-      'Peta på en motorcykel. En ska se glad ut, alla andra förskräckta',
+      'Ta en gruppbild med ett djur',
+      'Peta på en motorcykel',
       'Ramla! (roliga gatan fram)',
       'Ha en livlig argumentation',
       'Spela fotboll',
-      'Ät nåt litet, men gapa så att det är nåt jättestort',
-      'Återskapa skivomslaget till Beatles - Abbey road'
+      'Ät nåt litet men gapa stort',
+      'Återskapa Beatles Abbey Road'
     ];
 
     const checklist = document.getElementById('checklist');
@@ -121,7 +121,6 @@
     let pauseDuration = 10*60*1000;
     let timer, pauseTimer;
     let pausedOnce = localStorage.getItem('pausedOnce')==='true';
-    let mainRemaining = totalDuration;
     let startedOnce = localStorage.getItem('startedOnce')==='true';
 
     function formatTime(seconds){ 
@@ -129,48 +128,42 @@
       return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; 
     }
 
-    function enableBlockReload(){
-      window.addEventListener("beforeunload", blockReload);
-    }
-    function disableBlockReload(){
-      window.removeEventListener("beforeunload", blockReload);
-    }
+    // Blockering mot reload
     function blockReload(e){
       e.preventDefault();
-      e.returnValue = "Du kan inte ladda om sidan under spelet!";
+      e.returnValue = "Du kan inte ladda om sidan nu!";
     }
+    function enableBlockReload(){ window.addEventListener("beforeunload", blockReload); }
+    function disableBlockReload(){ window.removeEventListener("beforeunload", blockReload); }
 
     function startMainTimer(){
-      if(startedOnce) return; 
+      if(startedOnce) return;
       startedOnce = true;
       localStorage.setItem('startedOnce','true');
 
       startBtn.disabled = true;
       pauseBtn.disabled = false;
 
-      if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
+      let endTime = Date.now()+totalDuration;
+      localStorage.setItem('endTime', endTime);
+
       clearInterval(timer);
       timer=setInterval(()=>{
-        const elapsed = Date.now()-localStorage.getItem('timerStart');
-        mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
-        if(mainRemaining<=0) {
-          mainRemaining=0;
+        let remaining = Math.ceil((endTime-Date.now())/1000);
+        if(remaining<=0){
           clearInterval(timer);
-          localStorage.removeItem('pausedOnce');
-          localStorage.removeItem('timerStart');
-          localStorage.removeItem('pauseStart');
-          pauseBtn.disabled=false;
-          disableBlockReload(); // när spelet är slut tas blockeringen bort
+          remaining=0;
+          disableBlockReload(); // spärr släpper endast vid slut
         }
-        timerDisplay.innerText=formatTime(mainRemaining);
+        timerDisplay.innerText=formatTime(remaining);
       },1000);
 
-      enableBlockReload(); // blockera reload när huvudtimer startar
+      enableBlockReload(); // spärr aktiveras
     }
 
     function startPause(){
       if(pausedOnce) return;
-      if(!confirm("OBS! Denna paus kan bara användas EN gång!\nÄr du säker?")) return;
+      if(!confirm("OBS! Denna paus kan bara användas en gång!\nÄr du säker?")) return;
 
       pausedOnce = true;
       localStorage.setItem('pausedOnce','true');
@@ -185,16 +178,16 @@
       let pauseRemaining = pauseDuration/1000;
       pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
 
-      enableBlockReload(); // blockera reload under pausen
+      enableBlockReload(); // spärr även vid paus
 
-      pauseTimer = setInterval(()=>{
+      pauseTimer=setInterval(()=>{
         pauseRemaining--;
-        if(pauseRemaining <= 0){
+        if(pauseRemaining<=0){
           clearInterval(pauseTimer);
           pauseTimerDisplay.innerText='';
-          checklist.style.display = 'block';
-          checklistProgress.style.display = 'block';
-          startMainTimer();
+          checklist.style.display='block';
+          checklistProgress.style.display='block';
+          startMainTimer(); // återuppta huvudtimer men spärren släpps inte
         } else {
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
         }
@@ -202,22 +195,21 @@
     }
 
     function resetAll(){
-      if(!confirm("Är du säker på att du vill släppa alla spärrar och nollställa allt?")) return;
+      if(!confirm("Släppa alla spärrar och nollställa?")) return;
       clearInterval(timer);
       clearInterval(pauseTimer);
-      mainRemaining = totalDuration;
-      timerDisplay.innerText = formatTime(totalDuration/1000);
+      timerDisplay.innerText="75:00";
       pauseTimerDisplay.innerText='';
-      pausedOnce = false;
-      startedOnce = false;
+      pausedOnce=false;
+      startedOnce=false;
       localStorage.clear();
       checklist.style.display='block';
       checklistProgress.style.display='block';
-      checklist.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
+      checklist.querySelectorAll('input[type=\"checkbox\"]').forEach(cb=>cb.checked=false);
       updateChecklistProgress();
       pauseBtn.disabled=true;
       startBtn.disabled=false;
-      disableBlockReload(); // ta bort blockering
+      disableBlockReload(); // spärr släpper
     }
 
     startBtn.addEventListener('click',startMainTimer);
@@ -226,10 +218,8 @@
     resetAllBtn.addEventListener('click',resetAll);
 
     window.addEventListener('load',()=>{
-      if(localStorage.getItem('timerStart')){
+      if(localStorage.getItem('endTime')){
         startMainTimer();
-      } else {
-        timerDisplay.innerText = formatTime(totalDuration/1000);
       }
     });
   </script>
