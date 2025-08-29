@@ -62,7 +62,6 @@
         'Återskapa skivomslaget till Beatles - Abbey road'
       ];
 
-      // Skapa checklistan
       items.forEach((item, index) => {
         const li = document.createElement('li');
         const checkbox = document.createElement('input');
@@ -101,14 +100,7 @@
       });
 
       releaseBtn.addEventListener('click', () => {
-        // Återställ till ursprungsläget
-        timerStarted = false;
-        startBtn.disabled = false;
-        checklist.style.display = "none";
-
-        const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(cb => cb.checked = false);
-        checklistProgress.innerText = "0% klara";
+        alert("Släpp alla spärrar!");
       });
     });
   </script>
