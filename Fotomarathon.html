@@ -51,7 +51,7 @@
       <button id="releaseLocksBtn">Släpp alla spärrar</button>
     </div>
 
-    <ul id="checklist"></ul>
+    <ul id="checklist" style="display:none;"></ul>
   </div>
 
   <script>
@@ -138,6 +138,9 @@
       pauseBtn.disabled = false;
       pauseBtn.style.backgroundColor = "#4CAF50";
 
+      // Visa checklistan
+      checklist.style.display = "block";
+
       if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
 
       clearInterval(timer);
@@ -180,4 +183,30 @@
           pauseTimerDisplay.innerText='';
           startMainTimer();
         } else {
-          pauseTimer
+          pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
+        }
+      },1000);
+    }
+
+    // Nollställ-knapp: visar meddelande istället
+    resetBtn.addEventListener('click', () => {
+      alert("APP-APP-APP!\nFörsök inte fuska!\n\nEtt meddelande har skickats till ledningen att ni tryckt på denna knapp!");
+    });
+
+    startBtn.addEventListener('click', startMainTimer);
+    pauseBtn.addEventListener('click', startPause);
+
+    releaseBtn.addEventListener('click',()=>{
+      if(confirm("Vill ni verkligen släppa alla spärrar?")){
+        const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb=>{
+          cb.checked=false;
+          localStorage.setItem(cb.id,false);
+        });
+        updateChecklistProgress();
+      }
+    });
+
+  </script>
+</body>
+</html>
