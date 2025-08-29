@@ -26,6 +26,7 @@
     }
     h2 {
       text-align: center;
+      margin: 5px 0;
     }
     .instructions {
       background: #eef;
@@ -56,43 +57,26 @@
     label {
       font-size: 16px;
     }
+    .timer-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
     #timerDisplay {
-      font-size: 18px;
+      font-size: 24px;
       font-weight: bold;
-      margin-top: 10px;
+      margin: 10px 0;
     }
     #startTimerBtn {
       padding: 10px 20px;
       font-size: 16px;
-      border-radius: 8px;
       border: none;
-      background-color: #4CAF50;
+      background: #337ab7;
       color: white;
+      border-radius: 6px;
       cursor: pointer;
     }
-    #startTimerBtn:hover {
-      background-color: #45a049;
-    }
-    .timer-container {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    /* Progressbar */
-    .progress-container {
-      background-color: #ddd;
-      border-radius: 10px;
-      overflow: hidden;
-      height: 20px;
-      margin-bottom: 15px;
-    }
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background-color: #4CAF50;
-      text-align: center;
-      color: white;
-      line-height: 20px;
-      font-size: 12px;
+    #startTimerBtn:active {
+      background: #235a85;
     }
   </style>
 </head>
@@ -102,56 +86,25 @@
     <h2>FOTOMARATHON</h2>
     <h2>Lloret de Mar</h2>
 
-    <!-- Timer -->
-    <div class="timer-container">
-      <button id="startTimerBtn">Starta timer (75 min)</button>
-      <div id="timerDisplay">75:00</div>
-    </div>
-
-    <!-- Progressbar -->
-    <div class="progress-container">
-      <div id="progressBar" class="progress-bar">0%</div>
-    </div>
-
     <div class="instructions">
       <div class="rules-title">REGLER</div>
       <p>- Alla i laget ska synas på alla bilderna.</p>
       <p>- En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
       <p>- Laget måste vara tillbaka exakt 75 minuter efter att startsignalen går.</p>
-      <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
+      <p>- Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.</p>
+      <p>- Obligatorisk gruppbild; Vätskekontroll</p>
+    </div>
+
+    <div class="timer-container">
+      <div id="timerDisplay">75:00</div>
+      <button id="startTimerBtn">Starta timer</button>
     </div>
 
     <ul id="checklist"></ul>
   </div>
 
   <script>
-    // Timer
-    let timer;
-    let totalSeconds = 75 * 60; // 75 minuter
-
-    function updateTimerDisplay(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = seconds % 60;
-      document.getElementById('timerDisplay').innerText = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-    }
-
-    document.getElementById('startTimerBtn').addEventListener('click', () => {
-      clearInterval(timer);
-      totalSeconds = 75 * 60;
-      updateTimerDisplay(totalSeconds);
-
-      timer = setInterval(() => {
-        totalSeconds--;
-        updateTimerDisplay(totalSeconds);
-
-        if (totalSeconds <= 0) {
-          clearInterval(timer);
-          alert("Tiden är slut! Alla måste vara tillbaka!");
-        }
-      }, 1000);
-    });
-
-    // Checklist
+    // CHECKLISTA
     const items = [
       'Den minsta platsen där de alla får plats för en gruppbild',
       'Vi bygger något tillsammans (fri tolkning. Gör en pyramid eller bygg ett sandslott eller hitta en byggarbetsplats.)',
@@ -174,15 +127,6 @@
     ];
 
     const checklist = document.getElementById('checklist');
-    const progressBar = document.getElementById('progressBar');
-
-    function updateProgress() {
-      const total = items.length;
-      const checked = document.querySelectorAll('#checklist input[type="checkbox"]:checked').length;
-      const percent = Math.round((checked / total) * 100);
-      progressBar.style.width = percent + '%';
-      progressBar.innerText = percent + '%';
-    }
 
     items.forEach((item, index) => {
       const li = document.createElement('li');
@@ -198,7 +142,6 @@
 
       checkbox.addEventListener('change', () => {
         localStorage.setItem(checkbox.id, checkbox.checked);
-        updateProgress();
       });
 
       label.htmlFor = checkbox.id;
@@ -209,8 +152,47 @@
       checklist.appendChild(li);
     });
 
-    // Initiera progress på start
-    updateProgress();
+    // TIMER
+    let timer;
+    const timerDisplay = document.getElementById('timerDisplay');
+    const startBtn = document.getElementById('startTimerBtn');
+    const totalDuration = 75 * 60 * 1000; // 75 minuter i millisekunder
+
+    function updateTimer(secondsLeft) {
+      const min = Math.floor(secondsLeft / 60);
+      const sec = Math.floor(secondsLeft % 60);
+      timerDisplay.innerText = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+    }
+
+    function startTimer() {
+      const startTime = Date.now();
+      localStorage.setItem('timerStart', startTime);
+
+      clearInterval(timer);
+      timer = setInterval(() => tickTimer(startTime), 1000);
+    }
+
+    function tickTimer(startTime) {
+      const now = Date.now();
+      const elapsed = now - startTime;
+      const remaining = Math.max(0, totalDuration - elapsed) / 1000; // i sekunder
+
+      updateTimer(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(timer);
+        alert("Tiden är slut! Alla måste vara tillbaka!");
+        localStorage.removeItem('timerStart');
+      }
+    }
+
+    const savedStart = localStorage.getItem('timerStart');
+    if (savedStart) {
+      tickTimer(savedStart);
+      timer = setInterval(() => tickTimer(savedStart), 1000);
+    }
+
+    startBtn.addEventListener('click', startTimer);
   </script>
 </body>
 </html>
