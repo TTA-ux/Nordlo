@@ -49,10 +49,6 @@
       margin: 10px 0;
       display: flex;
       align-items: center;
-      transition: transform 0.3s ease;
-    }
-    li.bounce {
-      transform: scale(1.1);
     }
     input[type="checkbox"] {
       transform: scale(1.5);
@@ -83,6 +79,8 @@
       background-color: #45a049;
     }
   </style>
+  <!-- Ladda konfetti-biblioteket -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
   <img src="NORDLO.png" alt="Logo" class="logo">
@@ -95,7 +93,7 @@
       <p>- Alla i laget ska synas på alla bilderna.</p>
       <p>- En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
       <p>- Laget måste vara tillbaka exakt 75 minuter efter att startsignalen går.</p>
-      <p>  (Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
+      <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
     </div>
 
     <div style="text-align:center; margin-bottom: 20px;">
@@ -107,8 +105,6 @@
 
     <ul id="checklist"></ul>
   </div>
-
-  <audio id="applauseSound" src="https://www.soundjay.com/human/applause-01.mp3" preload="auto"></audio>
 
   <script>
     const items = [
@@ -139,11 +135,6 @@
     ];
 
     const checklist = document.getElementById('checklist');
-    const applause = document.getElementById('applauseSound');
-
-    function isMobile() {
-      return /Mobi|Android/i.test(navigator.userAgent);
-    }
 
     // Skapa checklistan
     items.forEach((item, index) => {
@@ -162,13 +153,13 @@
         localStorage.setItem(checkbox.id, checkbox.checked);
         updateChecklistProgress();
 
-        // Applåder + konfetti på mobil
-        if (isMobile() && checkbox.checked) {
-          applause.currentTime = 0;
-          applause.play();
-          showConfetti();
-          li.classList.add('bounce');
-          setTimeout(() => li.classList.remove('bounce'), 300);
+        // Konfetti på mobil om kryssad
+        if (checkbox.checked && /Mobi|Android/i.test(navigator.userAgent)) {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
         }
       });
 
@@ -234,34 +225,6 @@
       startTimer();
     } else {
       updateTimer(totalDuration / 1000);
-    }
-
-    // Enkel konfetti
-    function showConfetti() {
-      for (let i = 0; i < 30; i++) {
-        const confetti = document.createElement('div');
-        confetti.style.position = 'fixed';
-        confetti.style.width = '8px';
-        confetti.style.height = '8px';
-        confetti.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
-        confetti.style.left = Math.random() * window.innerWidth + 'px';
-        confetti.style.top = '0px';
-        confetti.style.opacity = 0.9;
-        confetti.style.borderRadius = '50%';
-        confetti.style.zIndex = 9999;
-        confetti.style.pointerEvents = 'none';
-        document.body.appendChild(confetti);
-
-        let y = 0;
-        const fall = setInterval(() => {
-          y += 5 + Math.random()*5;
-          confetti.style.top = y + 'px';
-          if (y > window.innerHeight) {
-            clearInterval(fall);
-            document.body.removeChild(confetti);
-          }
-        }, 16);
-      }
     }
   </script>
 </body>
