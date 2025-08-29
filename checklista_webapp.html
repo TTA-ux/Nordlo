@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checklista för grupp</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.5);
+      margin-right: 12px;
+    }
+    label {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Checklista – Grupp 1</h2>
+    <ul>
+      <li><input type="checkbox" id="task1"><label for="task1">Uppgift 1</label></li>
+      <li><input type="checkbox" id="task2"><label for="task2">Uppgift 2</label></li>
+      <li><input type="checkbox" id="task3"><label for="task3">Uppgift 3</label></li>
+      <li><input type="checkbox" id="task4"><label for="task4">Uppgift 4</label></li>
+      <li><input type="checkbox" id="task5"><label for="task5">Uppgift 5</label></li>
+    </ul>
+  </div>
+
+  <script>
+    // Spara status i webbläsaren (localStorage)
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      const saved = localStorage.getItem(checkbox.id);
+      if (saved === 'true') {
+        checkbox.checked = true;
+      }
+      checkbox.addEventListener('change', () => {
+        localStorage.setItem(checkbox.id, checkbox.checked);
+      });
+    });
+  </script>
+</body>
+</html>
