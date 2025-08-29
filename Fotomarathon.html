@@ -145,6 +145,7 @@
       startBtn.disabled = true;
       startBtn.classList.add("used"); 
       pauseBtn.disabled = false;
+      pauseBtn.style.backgroundColor = '#4CAF50';
 
       let endTime = Date.now()+totalDuration;
       localStorage.setItem('endTime', endTime);
@@ -155,7 +156,7 @@
         if(remaining<=0){
           clearInterval(timer);
           remaining=0;
-          disableBlockReload(); // tillåts först när timern tar slut
+          disableBlockReload(); 
         }
         timerDisplay.innerText=formatTime(remaining);
       },1000);
@@ -174,13 +175,14 @@
       pauseBtn.disabled = true;
       startBtn.disabled = true;
 
+      // Dölj checklist och progress
       checklist.style.display = 'none';
       checklistProgress.style.display = 'none';
 
       let pauseRemaining = pauseDuration/1000;
       pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
 
-      enableBlockReload(); // blockera även under pausen
+      enableBlockReload(); // blockera reload även under pausen
 
       pauseTimer=setInterval(()=>{
         pauseRemaining--;
@@ -190,7 +192,6 @@
           checklist.style.display='block';
           checklistProgress.style.display='block';
           startMainTimer(); 
-          // OBS: INTE disableBlockReload() här! 
         } else {
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
         }
@@ -208,12 +209,13 @@
       localStorage.clear();
       checklist.style.display='block';
       checklistProgress.style.display='block';
-      checklist.querySelectorAll('input[type=\"checkbox\"]').forEach(cb=>cb.checked=false);
+      checklist.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
       updateChecklistProgress();
       pauseBtn.disabled=true;
       startBtn.disabled=false;
       startBtn.classList.remove("used");
-      disableBlockReload(); // spärrar släpps här
+      pauseBtn.style.backgroundColor = '#999';
+      disableBlockReload();
     }
 
     startBtn.addEventListener('click',startMainTimer);
@@ -221,17 +223,11 @@
     pauseBtn.addEventListener('click',startPause);
     resetAllBtn.addEventListener('click',resetAll);
 
-    window.addEventListener('load',()=>{
-      if(startedOnce){
-        startBtn.disabled = true;
-        startBtn.classList.add("used");
-        if(!pausedOnce) pauseBtn.disabled = false;
-        startMainTimer();
-      } else {
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-      }
+    // På laddning: visa checkbox-status
+    checklist.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+      cb.checked = localStorage.getItem(cb.id)==='true';
     });
+    updateChecklistProgress();
   </script>
 </body>
 </html>
