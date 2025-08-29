@@ -79,6 +79,8 @@
       background-color: #45a049;
     }
   </style>
+  <!-- Ladda konfetti-biblioteket -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
   <img src="NORDLO.png" alt="Logo" class="logo">
@@ -91,7 +93,7 @@
       <p>- Alla i laget ska synas på alla bilderna.</p>
       <p>- En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
       <p>- Laget måste vara tillbaka exakt 75 minuter efter att startsignalen går.</p>
-      <p>  (Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
+      <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
     </div>
 
     <div style="text-align:center; margin-bottom: 20px;">
@@ -150,6 +152,15 @@
       checkbox.addEventListener('change', () => {
         localStorage.setItem(checkbox.id, checkbox.checked);
         updateChecklistProgress();
+
+        // Konfetti på mobil om kryssad
+        if (checkbox.checked && /Mobi|Android/i.test(navigator.userAgent)) {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+        }
       });
 
       label.htmlFor = checkbox.id;
