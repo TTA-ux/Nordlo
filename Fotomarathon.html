@@ -147,13 +147,14 @@
       pauseBtn.disabled=true;
 
       let pauseRemaining = pauseDuration/1000;
-
       pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
+
       pauseTimer = setInterval(()=>{
         pauseRemaining--;
         if(pauseRemaining<=0){
           clearInterval(pauseTimer);
           pauseTimerDisplay.innerText='';
+          localStorage.removeItem('pauseStart');
           startMainTimer();
         } else {
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
@@ -166,10 +167,15 @@
     pauseBtn.addEventListener('click',startPause);
     pauseBtn.addEventListener('touchstart', function(e){ e.preventDefault(); startPause(); }, {passive:false});
 
-    window.addEventListener('load',()=>{
-      if(localStorage.getItem('timerStart')) startMainTimer();
-      else timerDisplay.innerText = formatTime(totalDuration/1000);
+    // Förhindra reload under pausen
+    window.addEventListener('beforeunload', (e) => {
+      if(localStorage.getItem('pauseStart')){
+        e.preventDefault();
+        e.returnValue = "Paus pågår! Du kan inte ladda om sidan just nu.";
+      }
+    });
 
+    window.addEventListener('load',()=>{
       if(localStorage.getItem('pauseStart')){
         const elapsed = Date.now()-localStorage.getItem('pauseStart');
         if(elapsed<pauseDuration){
@@ -183,6 +189,7 @@
             if(pauseRemaining<=0){
               clearInterval(pauseTimer);
               pauseTimerDisplay.innerText='';
+              localStorage.removeItem('pauseStart');
               startMainTimer();
             } else {
               pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
@@ -190,7 +197,12 @@
           },1000);
         } else {
           localStorage.removeItem('pauseStart');
+          if(localStorage.getItem('timerStart')) startMainTimer();
         }
+      } else if(localStorage.getItem('timerStart')) {
+        startMainTimer();
+      } else {
+        timerDisplay.innerText = formatTime(totalDuration/1000);
       }
     });
   </script>
