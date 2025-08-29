@@ -26,7 +26,6 @@
     }
     h2 {
       text-align: center;
-      margin: 5px 0;
     }
     .instructions {
       background: #eef;
@@ -59,24 +58,24 @@
     }
     .timer-container {
       text-align: center;
-      margin-bottom: 20px;
+      margin: 20px 0;
     }
     #timerDisplay {
       font-size: 24px;
       font-weight: bold;
-      margin: 10px 0;
+      margin-bottom: 10px;
     }
-    #startTimerBtn {
-      padding: 10px 20px;
+    button {
       font-size: 16px;
-      border: none;
-      background: #337ab7;
-      color: white;
-      border-radius: 6px;
+      padding: 8px 16px;
+      margin: 5px;
       cursor: pointer;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background-color: #ddd;
     }
-    #startTimerBtn:active {
-      background: #235a85;
+    button:hover {
+      background-color: #ccc;
     }
   </style>
 </head>
@@ -85,26 +84,25 @@
   <div class="container">
     <h2>FOTOMARATHON</h2>
     <h2>Lloret de Mar</h2>
-
     <div class="instructions">
       <div class="rules-title">REGLER</div>
       <p>- Alla i laget ska synas på alla bilderna.</p>
       <p>- En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
       <p>- Laget måste vara tillbaka exakt 75 minuter efter att startsignalen går.</p>
-      <p>- Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.</p>
-      <p>- Obligatorisk gruppbild; Vätskekontroll</p>
+      <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
     </div>
 
     <div class="timer-container">
       <div id="timerDisplay">75:00</div>
       <button id="startTimerBtn">Starta timer</button>
+      <button id="resetTimerBtn">Nollställ timer</button>
     </div>
 
     <ul id="checklist"></ul>
   </div>
 
   <script>
-    // CHECKLISTA
+    // ====== Checklistan ======
     const items = [
       'Den minsta platsen där de alla får plats för en gruppbild',
       'Vi bygger något tillsammans (fri tolkning. Gör en pyramid eller bygg ett sandslott eller hitta en byggarbetsplats.)',
@@ -136,6 +134,7 @@
       checkbox.type = 'checkbox';
       checkbox.id = `task${index+1}`;
 
+      // Ladda sparad status
       if (localStorage.getItem(checkbox.id) === 'true') {
         checkbox.checked = true;
       }
@@ -152,47 +151,56 @@
       checklist.appendChild(li);
     });
 
-    // TIMER
-    let timer;
+    // ====== Timer ======
     const timerDisplay = document.getElementById('timerDisplay');
     const startBtn = document.getElementById('startTimerBtn');
-    const totalDuration = 75 * 60 * 1000; // 75 minuter i millisekunder
+    const resetBtn = document.getElementById('resetTimerBtn');
 
+    let totalDuration = 75 * 60 * 1000; // 75 minuter
+    let timer;
+    
     function updateTimer(secondsLeft) {
-      const min = Math.floor(secondsLeft / 60);
-      const sec = Math.floor(secondsLeft % 60);
-      timerDisplay.innerText = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+      const minutes = Math.floor(secondsLeft / 60);
+      const seconds = secondsLeft % 60;
+      timerDisplay.innerText = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
     }
 
     function startTimer() {
-      const startTime = Date.now();
-      localStorage.setItem('timerStart', startTime);
-
-      clearInterval(timer);
-      timer = setInterval(() => tickTimer(startTime), 1000);
-    }
-
-    function tickTimer(startTime) {
-      const now = Date.now();
-      const elapsed = now - startTime;
-      const remaining = Math.max(0, totalDuration - elapsed) / 1000; // i sekunder
-
-      updateTimer(remaining);
-
-      if (remaining <= 0) {
-        clearInterval(timer);
-        alert("Tiden är slut! Alla måste vara tillbaka!");
-        localStorage.removeItem('timerStart');
+      let startTime = localStorage.getItem('timerStart');
+      if (!startTime) {
+        startTime = Date.now();
+        localStorage.setItem('timerStart', startTime);
       }
+
+      timer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        let remaining = Math.ceil((totalDuration - elapsed)/1000);
+
+        if (remaining <= 0) {
+          remaining = 0;
+          clearInterval(timer);
+        }
+
+        updateTimer(remaining);
+      }, 1000);
     }
 
-    const savedStart = localStorage.getItem('timerStart');
-    if (savedStart) {
-      tickTimer(savedStart);
-      timer = setInterval(() => tickTimer(savedStart), 1000);
+    function resetTimer() {
+      clearInterval(timer);
+      localStorage.removeItem('timerStart');
+      updateTimer(totalDuration/1000);
     }
 
     startBtn.addEventListener('click', startTimer);
+    resetBtn.addEventListener('click', resetTimer);
+
+    // Om sidan laddas, fortsätt timer om den redan startats
+    const savedStart = localStorage.getItem('timerStart');
+    if (savedStart) {
+      startTimer();
+    } else {
+      updateTimer(totalDuration/1000);
+    }
   </script>
 </body>
 </html>
