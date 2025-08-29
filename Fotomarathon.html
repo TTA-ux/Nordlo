@@ -65,17 +65,15 @@
     <h2>Lloret de Mar</h2>
     <div class="instructions">
       <div class="rules-title">REGLER</div>
-      <p> -Alla i laget ska synas på alla bilderna.</p>
-      <p>-En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
-      <p>-Laget måste vara tillbaka exakt 75 efter att startsignalen går.</p>
+      <p>- Alla i laget ska synas på alla bilderna.</p>
+      <p>- En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
+      <p>- Laget måste vara tillbaka exakt 75 efter att startsignalen går.</p>
       <p>(Fotobevis krävs: Gruppbild framför scenen med klockslag synligt.)</p>
     </div>
     <ul id="checklist"></ul>
   </div>
 
   <script>
-    const groupNumber = 1; // Ändra till 2, 3 osv. för varje grupp
-
     const items = [
       'Den minsta platsen där de alla får plats för en gruppbild',
       'Vi bygger något tillsammans (fri tolkning. Gör en pyramid eller bygg ett sandslott eller hitta en byggarbetsplats.)',
@@ -105,7 +103,7 @@
       const label = document.createElement('label');
 
       checkbox.type = 'checkbox';
-      checkbox.id = `group${groupNumber}-task${index+1}`;
+      checkbox.id = `task${index+1}`;
 
       // Ladda sparad status
       if (localStorage.getItem(checkbox.id) === 'true') {
