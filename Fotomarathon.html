@@ -18,10 +18,11 @@
     #timerDisplay, #pauseTimerDisplay { font-size: 24px; font-weight: bold; margin: 5px; text-align:center; }
     #checklistProgress { margin-top: 10px; font-size: 16px; }
     button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; background-color: #4CAF50; color: white; cursor: pointer; }
-    button:hover { background-color: #45a049; }
+    button:hover:enabled { background-color: #45a049; }
+    button:disabled { background-color: #999; cursor: not-allowed; }
     #pauseTimerDisplay { color: red; }
     #resetAllBtn { background-color: #f44336; }
-    #resetAllBtn:hover { background-color: #e53935; }
+    #resetAllBtn:hover:enabled { background-color: #e53935; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
@@ -45,7 +46,7 @@
       <div id="checklistProgress">0% klara</div>
       <button id="startTimerBtn">Starta timer</button>
       <button id="resetTimerBtn">Nollställ timer</button>
-      <button id="pauseBtn">Pausa 10 min</button>
+      <button id="pauseBtn" disabled>Pausa 10 min</button>
       <button id="resetAllBtn">Släpp alla spärrar</button>
     </div>
 
@@ -133,6 +134,9 @@
       startedOnce = true;
       localStorage.setItem('startedOnce','true');
 
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+
       if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
       clearInterval(timer);
       timer=setInterval(()=>{
@@ -151,6 +155,10 @@
     }
 
     function startPause(){
+      if(!startedOnce) {
+        alert("Du måste starta huvudtimern innan du kan pausa!");
+        return;
+      }
       if(pausedOnce) return;
       if(!confirm("OBS! Denna paus kan bara användas EN gång!\nÄr du säker?")) return;
 
@@ -159,8 +167,8 @@
 
       clearInterval(timer); // pausa huvudtimer
       pauseBtn.disabled = true;
+      startBtn.disabled = true;
 
-      // göm checklist och progress
       checklist.style.display = 'none';
       checklistProgress.style.display = 'none';
 
@@ -195,7 +203,8 @@
       checklistProgress.style.display='block';
       checklist.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
       updateChecklistProgress();
-      pauseBtn.disabled=false;
+      pauseBtn.disabled=true;
+      startBtn.disabled=false;
     }
 
     startBtn.addEventListener('click',startMainTimer);
@@ -204,14 +213,18 @@
     resetAllBtn.addEventListener('click',resetAll);
 
     window.addEventListener('load',()=>{
-      if(localStorage.getItem('timerStart')) startMainTimer();
-      else timerDisplay.innerText = formatTime(totalDuration/1000);
+      if(localStorage.getItem('timerStart')){
+        startMainTimer();
+      } else {
+        timerDisplay.innerText = formatTime(totalDuration/1000);
+      }
 
       if(localStorage.getItem('pauseStart')){
         const elapsed = Date.now()-localStorage.getItem('pauseStart');
         if(elapsed<pauseDuration){
           pausedOnce=true;
           pauseBtn.disabled=true;
+          startBtn.disabled=true;
           clearInterval(timer);
           let pauseRemaining = Math.ceil((pauseDuration-elapsed)/1000);
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
