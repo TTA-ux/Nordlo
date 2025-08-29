@@ -20,6 +20,7 @@
     button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; background-color: #4CAF50; color: white; cursor: pointer; }
     button:hover { background-color: #45a049; }
     #pauseTimerDisplay { color: red; }
+    #resetAllBtn { background-color:#f44336; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
@@ -47,6 +48,10 @@
     </div>
 
     <ul id="checklist"></ul>
+
+    <div style="text-align:center; margin-top:20px;">
+      <button id="resetAllBtn">Återställ allt</button>
+    </div>
   </div>
 
   <script>
@@ -82,6 +87,13 @@
       checkbox.type='checkbox';
       checkbox.id=`task${index+1}`;
       if(localStorage.getItem(checkbox.id)==='true') checkbox.checked=true;
+      const label = document.createElement('label');
+      label.htmlFor=checkbox.id;
+      label.innerText=item;
+      li.appendChild(checkbox);
+      li.appendChild(label);
+      checklist.appendChild(li);
+
       checkbox.addEventListener('change',()=>{
         localStorage.setItem(checkbox.id,checkbox.checked);
         updateChecklistProgress();
@@ -89,12 +101,6 @@
           confetti({particleCount:100, spread:70, origin:{y:0.6}});
         }
       });
-      const label = document.createElement('label');
-      label.htmlFor=checkbox.id;
-      label.innerText=item;
-      li.appendChild(checkbox);
-      li.appendChild(label);
-      checklist.appendChild(li);
     });
 
     const checklistProgress = document.getElementById('checklistProgress');
@@ -111,6 +117,7 @@
     const startBtn = document.getElementById('startTimerBtn');
     const resetBtn = document.getElementById('resetTimerBtn');
     const pauseBtn = document.getElementById('pauseBtn');
+    const resetAllBtn = document.getElementById('resetAllBtn');
 
     let totalDuration = 75*60*1000;
     let pauseDuration = 10*60*1000;
@@ -124,13 +131,11 @@
     }
 
     function startMainTimer(){
-      if(localStorage.getItem('timerStarted') === 'true') return;
-      localStorage.setItem('timerStarted', 'true');
-      startBtn.disabled = true;
-
-      if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart', Date.now());
+      if(localStorage.getItem('timerStarted')) return;
+      localStorage.setItem('timerStarted','true');
+      if(!localStorage.getItem('timerStart')) localStorage.setItem('timerStart',Date.now());
       clearInterval(timer);
-      timer = setInterval(()=>{
+      timer=setInterval(()=>{
         const elapsed = Date.now()-localStorage.getItem('timerStart');
         mainRemaining = Math.ceil((totalDuration-elapsed)/1000);
         if(mainRemaining<=0) {
@@ -138,12 +143,13 @@
           clearInterval(timer);
           localStorage.removeItem('pausedOnce');
           localStorage.removeItem('timerStart');
-          localStorage.removeItem('pauseStart');
           localStorage.removeItem('timerStarted');
+          localStorage.removeItem('pauseStart');
           pauseBtn.disabled=false;
         }
         timerDisplay.innerText=formatTime(mainRemaining);
       },1000);
+      startBtn.disabled=true;
     }
 
     function startPause(){
@@ -157,7 +163,7 @@
       localStorage.setItem('pauseStart',Date.now());
       pauseBtn.disabled=true;
 
-      // Göm kryssrutor och progress under pausen
+      // Göm checklist och progress
       checklist.style.display='none';
       checklistProgress.style.display='none';
 
@@ -183,9 +189,38 @@
     pauseBtn.addEventListener('click',startPause);
     pauseBtn.addEventListener('touchstart', function(e){ e.preventDefault(); startPause(); }, {passive:false});
 
-    window.addEventListener('load',()=>{
-      if(localStorage.getItem('timerStarted') === 'true') startBtn.disabled=true;
+    resetAllBtn.addEventListener('click',()=>{
+      if(!confirm("Är du säker? Detta kommer nollställa allt och ta bort alla spärrar!")) return;
 
+      // Rensa localStorage
+      items.forEach((item,index)=>{ localStorage.removeItem(`task${index+1}`); });
+      localStorage.removeItem('timerStarted');
+      localStorage.removeItem('timerStart');
+      localStorage.removeItem('pauseStart');
+      localStorage.removeItem('pausedOnce');
+
+      // Nollställ kryssrutor
+      const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(cb=>cb.checked=false);
+      updateChecklistProgress();
+
+      // Nollställ timers
+      clearInterval(timer);
+      clearInterval(pauseTimer);
+      mainRemaining = totalDuration;
+      timerDisplay.innerText = formatTime(totalDuration/1000);
+      pauseTimerDisplay.innerText = '';
+
+      // Visa checklist och progress
+      checklist.style.display='block';
+      checklistProgress.style.display='block';
+
+      // Återaktivera knappar
+      startBtn.disabled=false;
+      pauseBtn.disabled=false;
+    });
+
+    window.addEventListener('load',()=>{
       if(localStorage.getItem('timerStart')) startMainTimer();
       else timerDisplay.innerText = formatTime(totalDuration/1000);
 
@@ -195,10 +230,10 @@
           pausedOnce=true;
           pauseBtn.disabled=true;
           clearInterval(timer);
-          checklist.style.display='none';
-          checklistProgress.style.display='none';
           let pauseRemaining = Math.ceil((pauseDuration-elapsed)/1000);
           pauseTimerDisplay.innerText = "Paus " + formatTime(pauseRemaining);
+          checklist.style.display='none';
+          checklistProgress.style.display='none';
           pauseTimer=setInterval(()=>{
             pauseRemaining--;
             if(pauseRemaining<=0){
@@ -212,18 +247,9 @@
             }
           },1000);
         } else {
-          localStorage.removeItem('pauseStart');
+          pausedOnce=true;
+          pauseBtn.disabled=true;
         }
-      }
-    });
-
-    window.addEventListener('beforeunload', function (e) {
-      const timerRunning = mainRemaining > 0;
-      const pauseActive = pauseTimerDisplay.innerText !== '';
-      if (timerRunning || pauseActive) {
-        e.preventDefault();
-        e.returnValue = 'Timer eller paus pågår! Är du säker på att du vill lämna sidan?';
-        return 'Timer eller paus pågår! Är du säker på att du vill lämna sidan?';
       }
     });
   </script>
