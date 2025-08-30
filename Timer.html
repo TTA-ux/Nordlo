@@ -49,7 +49,7 @@
   <button id="startBtn">Starta</button>
 
 <script>
-const START_MINUTES = 1;
+const START_MINUTES = 75;
 let totalMs = START_MINUTES * 60 * 1000;
 const timerEl = document.getElementById('timer');
 const startBtn = document.getElementById('startBtn');
@@ -85,7 +85,7 @@ startBtn.addEventListener('click', () => {
     update();
   } else if(clickCount === 2){
     totalMs += 10 * 60 * 1000; // lägg till 10 minuter
-    startBtn.disabled = true; // inga fler klick
+    startBtn.style.display = 'none'; // döljer knappen
   }
 });
 </script>
