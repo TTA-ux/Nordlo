@@ -38,7 +38,7 @@
       <p>- Alla i laget ska synas på alla bilderna.</p>
       <p>- En person måste alltid utföra samma sak på alla bilder. Gapa/sträcka upp händerna/stå åt fel håll eller nåt annat fyndigt.</p>
       <p>- Laget måste vara tillbaka exakt 75 minuter efter att startsignalen går.</p>
-      <p> Ett gruppfoto kommer tas vid startpunkten.)</p>
+      <p> Ett gruppfoto kommer tas vid startpunkten.</p>
     </div>
 
     <div style="text-align:center; margin-bottom: 20px;">
@@ -100,7 +100,9 @@
       'Ha en livlig argumentation',
       'Spela fotboll',
       'Ät nåt litet, men gapa så att det är nåt jättestort',
-      'Återskapa skivomslaget till Beatles - Abbey road'
+      'Återskapa skivomslaget till Beatles - Abbey road',
+      'Tugga tuggummi och blås en stor bubbla',
+      'Leta upp en udda hatt och ta en bild med den'
     ];
 
     items.forEach((item,index)=>{
@@ -113,7 +115,7 @@
         localStorage.setItem(checkbox.id,checkbox.checked);
         updateChecklistProgress();
         if(checkbox.checked && /Mobi|Android/i.test(navigator.userAgent)){
-          confetti({particleCount:100, spread:70, origin:{y:0.6}});
+          confetti({particleCount:200, spread:90, origin:{y:0.6}});
         }
       });
       const label = document.createElement('label');
