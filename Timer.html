@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Timer — 85 minuter</title>
+  <title>75 minuters timer</title>
   <style>
     body {
       margin: 0;
@@ -21,6 +21,10 @@
       font-weight: bold;
       text-shadow: 0 4px 18px rgba(0,0,0,0.6);
       margin-bottom: 40px;
+    }
+    .buttons {
+      display: flex;
+      gap: 20px;
     }
     button {
       background: #22c55e;
@@ -45,49 +49,57 @@
   </style>
 </head>
 <body>
-  <div id="timer" class="timer">01:25:00</div>
-  <button id="startBtn">Starta</button>
+  <div id="timer" class="timer">01:15:00</div>
+  <div class="buttons">
+    <button id="startBtn">Starta</button>
+    <button id="pauseBtn">+10 min</button>
+  </div>
 
 <script>
-(function(){
-  const TOTAL_MINUTES = 85;
-  const totalMs = TOTAL_MINUTES * 60 * 1000;
-  const timerEl = document.getElementById('timer');
-  const startBtn = document.getElementById('startBtn');
-  let startAt = null;
-  let rafId = null;
+const START_MINUTES = 75;
+let totalMs = START_MINUTES * 60 * 1000;
+const timerEl = document.getElementById('timer');
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
 
-  function format(ms){
-    const totalSec = Math.max(0, Math.ceil(ms/1000));
-    const hrs = Math.floor(totalSec / 3600);
-    const mins = Math.floor((totalSec % 3600) / 60);
-    const secs = totalSec % 60;
-    if(hrs > 0){
-      return `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-    } else {
-      return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-    }
+let startAt = null;
+let elapsedPause = 0;
+let rafId = null;
+
+function format(ms){
+  const totalSec = Math.max(0, Math.ceil(ms/1000));
+  const hrs = Math.floor(totalSec / 3600);
+  const mins = Math.floor((totalSec % 3600) / 60);
+  const secs = totalSec % 60;
+  if(hrs > 0){
+    return `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  } else {
+    return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
   }
+}
 
-  function update(){
-    const elapsed = Date.now() - startAt;
-    const remaining = Math.max(0, totalMs - elapsed);
-    timerEl.textContent = format(remaining);
-    if(remaining <= 0){
-      cancelAnimationFrame(rafId);
-      return;
-    }
-    rafId = requestAnimationFrame(update);
+function update(){
+  const elapsed = Date.now() - startAt + elapsedPause;
+  const remaining = Math.max(0, totalMs - elapsed);
+  timerEl.textContent = format(remaining);
+  if(remaining <= 0){
+    cancelAnimationFrame(rafId);
+    return;
   }
+  rafId = requestAnimationFrame(update);
+}
 
-  startBtn.addEventListener('click', () => {
-    if(startAt) return;
-    startAt = Date.now();
-    startBtn.disabled = true;
-    update();
-  });
+startBtn.addEventListener('click', () => {
+  if(startAt) return; // förhindra dubbelstart
+  startAt = Date.now();
+  startBtn.disabled = true;
+  update();
+});
 
-})();
+pauseBtn.addEventListener('click', () => {
+  if(!startAt) return; // funkar bara efter start
+  totalMs += 10 * 60 * 1000; // lägg till 10 minuter
+});
 </script>
 </body>
 </html>
