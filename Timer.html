@@ -74,4 +74,25 @@ function format(ms){
 function update(){
   const elapsed = Date.now() - startAt + elapsedPause;
   const remaining = Math.max(0, totalMs - elapsed);
-  t
+  timerEl.textContent = format(remaining);
+  if(remaining <= 0){
+    cancelAnimationFrame(rafId);
+    return;
+  }
+  rafId = requestAnimationFrame(update);
+}
+
+startBtn.addEventListener('click', () => {
+  clickCount++;
+  if(clickCount === 1){
+    startAt = Date.now();
+    update();
+  } else if(clickCount === 2){
+    totalMs += 10 * 60 * 1000; // lägg till 10 minuter
+    startBtn.disabled = true; // inga fler klick
+  }
+});
+</script>
+</body>
+</html>
+
