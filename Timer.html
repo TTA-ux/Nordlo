@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FOTOMARATON</title>
+  <title>75 minuters timer</title>
   <style>
     body {
       margin: 0;
@@ -64,11 +64,7 @@ function format(ms){
   const hrs = Math.floor(totalSec / 3600);
   const mins = Math.floor((totalSec % 3600) / 60);
   const secs = totalSec % 60;
-  if(hrs > 0){
-    return `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-  } else {
-    return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-  }
+  return `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
 }
 
 function update(){
@@ -95,6 +91,3 @@ startBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
-
-
-
