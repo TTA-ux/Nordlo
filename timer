@@ -3,295 +3,88 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Stor timer — 85 minuter</title>
+  <title>Timer — 85 minuter</title>
   <style>
-    :root{
-      --bg:#0f1724;
-      --card:#0b1220;
-      --accent:#22c55e;
-      --muted:#9aa4b2;
-      --white:#ffffff;
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #0f1724;
+      color: white;
+      font-family: Arial, sans-serif;
     }
-    html,body{
-      height:100%;
-      margin:0;
-      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background:
-        radial-gradient(1200px 600px at 10% 10%, rgba(34,197,94,0.06), transparent 8%),
-        radial-gradient(1200px 600px at 90% 90%, rgba(59,130,246,0.04), transparent 8%),
-        var(--bg);
-      color:var(--white);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
-    .card{
-      width: min(900px, 95vw);
-      max-width: 960px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius: 20px;
-      padding: 28px;
-      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
-      text-align:center;
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-
-    .title{
-      font-size: 18px;
-      color: var(--muted);
-      margin:0 0 6px 0;
-      letter-spacing: 0.6px;
-    }
-
-    .subtitle{
-      font-size: 13px;
-      color: #b8c2cc;
-      margin:0 0 22px 0;
-    }
-
-    /* Large timer */
     .timer {
-      display:block;
-      margin: 8px auto 20px auto;
-      font-weight:700;
-      color:var(--white);
-      line-height:1;
-      user-select: none;
+      font-size: 120px;
+      font-weight: bold;
       text-shadow: 0 4px 18px rgba(0,0,0,0.6);
+      margin-bottom: 40px;
     }
-    /* responsive sizes */
-    @media (min-width: 900px){
-      .timer{ font-size: 120px; }
+    button {
+      background: #22c55e;
+      color: #052018;
+      border: none;
+      padding: 18px 40px;
+      border-radius: 10px;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(34,197,94,0.3);
+      transition: transform 0.15s ease;
     }
-    @media (max-width: 899px) and (min-width: 600px){
-      .timer{ font-size: 92px; }
+    button:active {
+      transform: scale(0.97);
     }
-    @media (max-width:599px){
-      .timer{ font-size: 64px; }
+    button[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
-
-    .controls{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      margin-top:12px;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      background:var(--accent);
-      color:#052018;
-      border:none;
-      padding:12px 20px;
-      border-radius:10px;
-      font-weight:700;
-      font-size:16px;
-      cursor:pointer;
-      box-shadow: 0 6px 18px rgba(34,197,94,0.18);
-      transition:transform .12s ease, opacity .12s ease;
-      min-width:120px;
-    }
-    .btn.secondary{
-      background:transparent;
-      color:var(--white);
-      border:1px solid rgba(255,255,255,0.08);
-      box-shadow:none;
-    }
-    .btn:active{ transform:translateY(1px) scale(.998); }
-    .btn[disabled]{ opacity:.45; cursor:not-allowed; transform:none; }
-
-    .meta{
-      margin-top:14px;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    /* small helper for accessibility focus */
-    .btn:focus{ outline:3px solid rgba(34,197,94,0.18); outline-offset:3px; }
-
   </style>
 </head>
 <body>
-  <main class="card" role="main" aria-labelledby="title">
-    <h1 id="title" class="title">FOTOMARATHON — Timer</h1>
-    <div class="subtitle">Stor timer, centrerad på sidan — 85 minuter</div>
-
-    <div id="timer" class="timer" aria-live="polite">01:25:00</div>
-
-    <div class="controls" role="group" aria-label="Timerkontroller">
-      <button id="startBtn" class="btn">Starta</button>
-      <button id="pauseBtn" class="btn secondary" disabled>Pausa</button>
-      <button id="resetBtn" class="btn secondary">Nollställ</button>
-    </div>
-
-    <div class="meta">Sidan sparar timerstatus i din webbläsares localStorage — uppdatera sidan för att testa återupptagning.</div>
-  </main>
+  <div id="timer" class="timer">01:25:00</div>
+  <button id="startBtn">Starta</button>
 
 <script>
 (function(){
-  // Konfig
   const TOTAL_MINUTES = 85;
   const totalMs = TOTAL_MINUTES * 60 * 1000;
-
-  // Element
   const timerEl = document.getElementById('timer');
   const startBtn = document.getElementById('startBtn');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const resetBtn = document.getElementById('resetBtn');
-
-  // localStorage keys
-  const LS = {
-    startAt: 'ft_timer_startAt',
-    pausedAt: 'ft_timer_pausedAt',
-    totalPaused: 'ft_timer_totalPaused',
-    running: 'ft_timer_running'
-  };
-
-  // State
+  let startAt = null;
   let rafId = null;
 
-  function now(){ return Date.now(); }
-  function getNum(k){ return Number(localStorage.getItem(k) || 0); }
-  function setNum(k,v){ localStorage.setItem(k, String(v)); }
-  function clr(k){ localStorage.removeItem(k); }
-
-  // Format seconds->HH:MM:SS
-  function formatFromMs(ms){
+  function format(ms){
     const totalSec = Math.max(0, Math.ceil(ms/1000));
     const hrs = Math.floor(totalSec / 3600);
     const mins = Math.floor((totalSec % 3600) / 60);
     const secs = totalSec % 60;
     if(hrs > 0){
       return `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-    }else{
+    } else {
       return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
     }
   }
 
-  // Compute remaining ms
-  function getRemainingMs(){
-    const startAt = getNum(LS.startAt);
-    const totalPaused = getNum(LS.totalPaused) || 0;
-    if(!startAt) return totalMs;
-    const elapsed = now() - startAt - totalPaused;
-    return Math.max(0, totalMs - elapsed);
-  }
-
-  // UI state update
-  function render(){
-    const remaining = getRemainingMs();
-    timerEl.textContent = formatFromMs(remaining);
-    // update buttons
-    const running = localStorage.getItem(LS.running) === '1';
-    startBtn.disabled = running;
-    pauseBtn.disabled = !running;
-  }
-
-  // Animation loop (keeps it accurate)
-  function tick(){
-    render();
-    // stop if finished
-    if(getRemainingMs() <= 0){
-      stopLoop();
-      // ensure UI buttons reflect finished state
-      localStorage.setItem(LS.running, '0');
-      startBtn.disabled = true;
-      pauseBtn.disabled = true;
-      // optional subtle visual / aria announcement
-      timerEl.setAttribute('aria-label', 'Tiden är ute — 00:00:00');
+  function update(){
+    const elapsed = Date.now() - startAt;
+    const remaining = Math.max(0, totalMs - elapsed);
+    timerEl.textContent = format(remaining);
+    if(remaining <= 0){
+      cancelAnimationFrame(rafId);
       return;
     }
-    rafId = requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(update);
   }
 
-  function startTimer(){
-    if(localStorage.getItem(LS.running) === '1') return;
-    // if there is a pausedAt, account for it
-    const pausedAt = getNum(LS.pausedAt);
-    if(pausedAt){
-      // Add paused duration to totalPaused
-      const pausedDuration = now() - pausedAt;
-      const prevTotal = getNum(LS.totalPaused) || 0;
-      setNum(LS.totalPaused, prevTotal + pausedDuration);
-      clr(LS.pausedAt);
-    }
-    // if no startAt set, set it now
-    if(!getNum(LS.startAt)){
-      setNum(LS.startAt, now());
-      setNum(LS.totalPaused, 0);
-    }
-    localStorage.setItem(LS.running, '1');
-    // start loop
-    stopLoop(); // clear any existing
-    tick();
-  }
-
-  function pauseTimer(){
-    if(localStorage.getItem(LS.running) !== '1') return;
-    // mark pausedAt
-    clr(LS.running);
-    setNum(LS.pausedAt, now());
-    stopLoop();
-    render();
-  }
-
-  function resetTimer(){
-    // clear all state
-    clr(LS.startAt);
-    clr(LS.pausedAt);
-    clr(LS.totalPaused);
-    clr(LS.running);
-    stopLoop();
-    render();
-  }
-
-  function stopLoop(){
-    if(rafId) cancelAnimationFrame(rafId);
-    rafId = null;
-  }
-
-  // Hook up buttons
-  startBtn.addEventListener('click', () => startTimer());
-  pauseBtn.addEventListener('click', () => pauseTimer());
-  resetBtn.addEventListener('click', () => {
-    if(!confirm('Vill du nollställa timern?')) return;
-    resetTimer();
-  });
-
-  // Initialize: if running flag present, resume loop
-  (function init(){
-    // Ensure UI shows initial value immediately
-    render();
-
-    if(localStorage.getItem(LS.running) === '1'){
-      // resume ticking
-      tick();
-    } else {
-      // show remaining based on stored state
-      render();
-    }
-    // make sure timer shows 01:25:00 initially when totally unset
-    if(!getNum(LS.startAt) && !getNum(LS.pausedAt)){
-      timerEl.textContent = formatFromMs(totalMs); // 85:00 => 01:25:00
-    }
-  })();
-
-  // Accessibility: allow space to toggle start/pause
-  window.addEventListener('keydown', (e) => {
-    if(e.code === 'Space'){
-      e.preventDefault();
-      if(localStorage.getItem(LS.running) === '1') pauseTimer();
-      else startTimer();
-    }
-  });
-
-  // keep timer accurate if system time changes: listen to visibility change
-  document.addEventListener('visibilitychange', () => {
-    // re-render on visibility change
-    render();
+  startBtn.addEventListener('click', () => {
+    if(startAt) return;
+    startAt = Date.now();
+    startBtn.disabled = true;
+    update();
   });
 
 })();
