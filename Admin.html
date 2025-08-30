@@ -228,7 +228,7 @@
       if(localStorage.getItem(LS.pauseStart)) return;
       if(localStorage.getItem(LS.pausedOnce) === 'true') return;
 
-      if(!confirm("OBS! Denna går att använda endast en gång!\nÄr du SÄKER på att du vill pausa?")) return;
+      if(!confirm("OBS!\nDenna pausknapp går att använda endast EN gång!\nÄr du SÄKER på att du vill pausa?")) return;
 
       localStorage.setItem(LS.pausedOnce, 'true');
       pausedOnce = true;
@@ -357,4 +357,5 @@
   </script>
 </body>
 </html>
+
 
