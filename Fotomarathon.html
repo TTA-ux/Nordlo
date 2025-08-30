@@ -115,7 +115,7 @@
         localStorage.setItem(checkbox.id,checkbox.checked);
         updateChecklistProgress();
         if(checkbox.checked && /Mobi|Android/i.test(navigator.userAgent)){
-          confetti({particleCount:200, spread:90, origin:{y:0.6}});
+          confetti({particleCount:600, spread:100, origin:{y:0.6}});
         }
       });
       const label = document.createElement('label');
