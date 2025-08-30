@@ -56,8 +56,8 @@
 
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 11;          // Byt till 11 för test
-    const PAUSE_MINUTES = 1;
+    const TOTAL_MINUTES = 11;          // Huvudtävlingen är 75 minuter
+    const PAUSE_MINUTES = 1;          // Pausen är 10 minuter
 
     // ---- Element ----
     const checklist = document.getElementById('checklist');
@@ -149,8 +149,7 @@
 
     function getNow(){ return Date.now(); }
 
-    // Vi räknar huvudtid som: elapsed = (now - timerStart) - totalPaused
-    // och sparar allt i localStorage så det överlever reload.
+    // ---- LocalStorage nycklar ----
     const LS = {
       timerStart: 'timerStart',
       totalPaused: 'totalPaused',
@@ -164,215 +163,111 @@
     function setNum(key,val){ localStorage.setItem(key,String(val)); }
     function clr(key){ localStorage.removeItem(key); }
 
-    // ---- Huvudtimer ----
-    function startMainTick(){
-      clearInterval(mainTimer);
-      mainTimer = setInterval(()=>{
-        const timerStart = getNum(LS.timerStart);
-        const totalPaused = getNum(LS.totalPaused);
-        const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
-        let remainingSec = Math.ceil((totalDuration - elapsed)/1000);
+    // ---- Ljud ----
+    const alertAudio = new Audio('https://www.soundjay.com/button/beep-07.wav');
+    function playAlert(){ alertAudio.currentTime = 0; alertAudio.play(); }
 
-        // 5 min varning (en gång)
-        if(remainingSec === 300 && !localStorage.getItem(LS.fiveMinWarned)){
+    // ---- Timer ----
+    function startMainTick(){
+      const startTime = getNum(LS.timerStart) || getNow();
+      setNum(LS.timerStart,startTime);
+      timerStarted=true;
+      preventReload(true);
+      showChecklist(true);
+      pauseBtn.disabled=false;
+
+      mainTimer = setInterval(()=>{
+        let elapsed = (getNow()-startTime) - getNum(LS.totalPaused);
+        let remainingSec = Math.max(0, Math.ceil((totalDuration - elapsed)/1000));
+
+        // 10 min varning
+        if(remainingSec===600 && !localStorage.getItem('tenMinWarned')){
+          localStorage.setItem('tenMinWarned','1');
+          playAlert();
+          alert('10 minuter kvar av tävlingen!');
+        }
+
+        // 5 min varning
+        if(remainingSec===300 && !localStorage.getItem(LS.fiveMinWarned)){
           localStorage.setItem(LS.fiveMinWarned,'1');
-          if('vibrate' in navigator){ navigator.vibrate(10000); }
+          playAlert();
           alert('5 minuter kvar av tävlingen!');
         }
 
-        // Slut
-        if(remainingSec <= 0){
-          remainingSec = 0;
+        timerDisplay.innerText = formatTime(remainingSec);
+
+        if(remainingSec<=0){
           clearInterval(mainTimer);
           if(!localStorage.getItem(LS.doneWarned)){
             localStorage.setItem(LS.doneWarned,'1');
-            if('vibrate' in navigator){ navigator.vibrate(10000); }
+            playAlert();
             alert('Tävlingen är över!');
           }
-          // Städa state
           clr(LS.pauseStart);
           clr(LS.pausedOnce);
           preventReload(false);
-          pauseBtn.disabled = false; // färg spelar ingen roll nu
-          pauseBtn.style.backgroundColor = "#4CAF50";
-          timerStarted = false;
+          pauseBtn.disabled=false;
+          pauseBtn.style.backgroundColor="#4CAF50";
+          timerStarted=false;
         }
-        timerDisplay.innerText = formatTime(remainingSec);
-      }, 1000);
+      },1000);
     }
 
-    function startMain(){
-      if(timerStarted) return;
-      timerStarted = true;
-
-      // UI
-      startBtn.disabled = true;
-      startBtn.style.backgroundColor = "#888";
-      pauseBtn.disabled = false;
-      pauseBtn.style.backgroundColor = "#4CAF50";
-      showChecklist(true);
-      preventReload(true);
-
-      // Initiera tid om ny start
-      if(!localStorage.getItem(LS.timerStart)){
-        setNum(LS.timerStart, getNow());
-        setNum(LS.totalPaused, 0);
-        clr(LS.pauseStart);
-        clr(LS.fiveMinWarned);
-        clr(LS.doneWarned);
-      }
-
-      // läs pausflagga
-      pausedOnce = localStorage.getItem(LS.pausedOnce) === 'true';
-
-      startMainTick();
-    }
-
-    // ---- Paus ----
-    function startPause(){
-      if(!timerStarted) return;
-      if(localStorage.getItem(LS.pauseStart)) return; // redan i paus
-      if(localStorage.getItem(LS.pausedOnce) === 'true') return; // bara en gång
-
-      if(!confirm("OBS! Denna går att använda endast en gång!\nÄr du säker på att du vill pausa?")) return;
-
-      localStorage.setItem(LS.pausedOnce, 'true');
-      pausedOnce = true;
-
-      // UI
-      pauseBtn.disabled = true;
-      pauseBtn.style.backgroundColor = "#888";
-      showChecklist(false);                 // 👈 göm checklistan under paus
-      preventReload(true);
-
-      // Starta paus
-      setNum(LS.pauseStart, getNow());
-      clearInterval(mainTimer);
-
-      // Paustimer UI
-      clearInterval(pauseTimer);
-      let remaining = Math.ceil(pauseDuration/1000);
-      pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
-      pauseTimer = setInterval(()=>{
-        remaining--;
-        if(remaining <= 0){
-          clearInterval(pauseTimer);
-          pauseTimerDisplay.innerText = '';
-          endPauseAndResume();
-        } else {
-          pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
-        }
-      }, 1000);
-    }
-
-    function endPauseAndResume(){
-      const pauseStart = getNum(LS.pauseStart);
-      if(pauseStart){
-        const pauseElapsed = getNow() - pauseStart;
-        const totalPaused = getNum(LS.totalPaused) + pauseElapsed;
-        setNum(LS.totalPaused, totalPaused);
-      }
-      clr(LS.pauseStart);
-
-      // Visa tillbaka checklistan
-      showChecklist(true);
-
-      // Fortsätt huvudtimer utan att toggla timerStarted-flaggan
-      startMainTick();
-      preventReload(true);
-    }
-
-    // ---- Knappar ----
-    startBtn.addEventListener('click', startMain);
-    pauseBtn.addEventListener('click', startPause);
-
-    // "Fuska inte"-knapp
-    resetBtn.addEventListener('click', () => {
-      alert("APP-APP-APP!\nFörsök inte fuska!\n\nEtt meddelande har skickats till ledningen att ni tryckt på denna knapp!");
+    startBtn.addEventListener('click',()=>{
+      if(!timerStarted) startMainTick();
     });
 
-    // Nollställ allt till ursprungsläget
-    releaseBtn.addEventListener('click', ()=>{
-      if(!confirm("Vill ni verkligen släppa alla spärrar och nollställa?")) return;
+    pauseBtn.addEventListener('click',()=>{
+      if(!pausedOnce){
+        pausedOnce=true;
+        setNum(LS.pausedOnce,1);
+        setNum(LS.pauseStart,getNow());
+        pauseBtn.disabled=true;
+        pauseBtn.style.backgroundColor="#888";
 
-      clearInterval(mainTimer);
-      clearInterval(pauseTimer);
-      // Rensa all timer/paus-state
-      clr(LS.timerStart);
-      clr(LS.totalPaused);
-      clr(LS.pauseStart);
-      clr(LS.pausedOnce);
-      clr(LS.fiveMinWarned);
-      clr(LS.doneWarned);
-
-      // Återställ UI
-      timerStarted = false;
-      pausedOnce = false;
-      timerDisplay.innerText = formatTime(TOTAL_MINUTES*60);
-      pauseTimerDisplay.innerText = '';
-      showChecklist(false);
-      preventReload(false);
-
-      startBtn.disabled = false;
-      startBtn.style.backgroundColor = "#4CAF50";
-      pauseBtn.disabled = true;
-      pauseBtn.style.backgroundColor = "#888";
-
-      // Avmarkera och nollställ checklista-procent (behåll uppgiftstext)
-      const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach(cb=>{
-        cb.checked = false;
-        localStorage.setItem(cb.id, 'false');
-      });
-      updateChecklistProgress();
-    });
-
-    // ---- Init vid inläsning (återställ från localStorage) ----
-    (function initFromStorage(){
-      // Om det finns timerStart är vi mitt i ett race
-      if(localStorage.getItem(LS.timerStart)){
-        timerStarted = true;
-        startBtn.disabled = true;
-        startBtn.style.backgroundColor = "#888";
-        pauseBtn.disabled = localStorage.getItem(LS.pausedOnce)==='true';
-        pauseBtn.style.backgroundColor = pauseBtn.disabled ? "#888" : "#4CAF50";
-
-        const inPause = !!localStorage.getItem(LS.pauseStart);
-        showChecklist(!inPause);
-        preventReload(true);
-
-        if(inPause){
-          // Räkna ner kvarvarande paus utifrån lagrad start
-          const elapsed = getNow() - getNum(LS.pauseStart);
-          let remaining = Math.max(0, Math.ceil((pauseDuration - elapsed)/1000));
-          pauseTimerDisplay.innerText = remaining>0 ? ("Paus " + formatTime(remaining)) : '';
-          clearInterval(pauseTimer);
-          if(remaining>0){
-            pauseTimer = setInterval(()=>{
-              remaining--;
-              if(remaining<=0){
-                clearInterval(pauseTimer);
-                pauseTimerDisplay.innerText='';
-                endPauseAndResume();
-              }else{
-                pauseTimerDisplay.innerText="Paus " + formatTime(remaining);
-              }
-            },1000);
-          }else{
-            endPauseAndResume();
+        pauseTimerDisplay.innerText = `Paus: ${PAUSE_MINUTES}:00`;
+        let remainingMs = pauseDuration;
+        pauseTimer = setInterval(()=>{
+          remainingMs -= 1000;
+          if(remainingMs<=0){
+            clearInterval(pauseTimer);
+            pauseTimerDisplay.innerText='';
+            let totalPaused = getNum(LS.totalPaused);
+            setNum(LS.totalPaused,totalPaused+pauseDuration);
+            pauseBtn.disabled=false;
+            pauseBtn.style.backgroundColor="#4CAF50";
+            alert('Pausen är slut! Tävlingsklockan fortsätter.');
+          } else {
+            pauseTimerDisplay.innerText=`Paus: ${formatTime(Math.ceil(remainingMs/1000))}`;
           }
-        }else{
-          startMainTick();
-        }
-      }else{
-        // Ursprungsläge
-        timerDisplay.innerText = formatTime(TOTAL_MINUTES*60);
-        showChecklist(false);
-        preventReload(false);
-        pauseBtn.disabled = true;
-        pauseBtn.style.backgroundColor = "#888";
+        },1000);
       }
-    })();
+    });
+
+    resetBtn.addEventListener('click',()=>{
+      if(confirm('Nollställ all timer och paus?')){
+        clearInterval(mainTimer);
+        clearInterval(pauseTimer);
+        clr(LS.timerStart); clr(LS.totalPaused);
+        clr(LS.pauseStart); clr(LS.pausedOnce);
+        clr(LS.fiveMinWarned); clr(LS.doneWarned); clr('tenMinWarned');
+        timerDisplay.innerText=formatTime(TOTAL_MINUTES*60);
+        pauseTimerDisplay.innerText='';
+        timerStarted=false;
+        pauseBtn.disabled=true;
+        pauseBtn.style.backgroundColor="#888";
+        preventReload(false);
+      }
+    });
+
+    releaseBtn.addEventListener('click',()=>{
+      if(confirm('Släpp alla checkboxar?')){
+        items.forEach((_,i)=>clr(`task${i+1}`));
+        updateChecklistProgress();
+        checklist.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
+      }
+    });
+
   </script>
 </body>
 </html>
