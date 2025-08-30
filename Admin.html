@@ -57,8 +57,8 @@
 
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 1;          // Byt till 11 för test
-    const PAUSE_MINUTES = 1;
+    const TOTAL_MINUTES = 75;          // Byt till 11 för test
+    const PAUSE_MINUTES = 10;
 
     // ---- Element ----
     const checklist = document.getElementById('checklist');
@@ -228,7 +228,7 @@
       if(localStorage.getItem(LS.pauseStart)) return;
       if(localStorage.getItem(LS.pausedOnce) === 'true') return;
 
-      if(!confirm("OBS!\nDenna pausknapp går att använda endast EN gång!\nÄr du SÄKER på att du vill pausa?")) return;
+      if(!confirm("VARNING!\nDenna pausknapp går att använda endast EN gång!\nÄr du SÄKER på att du vill pausa?")) return;
 
       localStorage.setItem(LS.pausedOnce, 'true');
       pausedOnce = true;
