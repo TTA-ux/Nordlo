@@ -15,6 +15,7 @@
       color: white;
       font-family: Arial, sans-serif;
       flex-direction: column;
+      text-align: center;
     }
     .timer {
       font-size: 120px;
@@ -42,17 +43,27 @@
       cursor: not-allowed;
       transform: none;
     }
+    .end-text {
+      display: none;
+      font-size: 80px;
+      font-weight: bold;
+      color: #f43f5e;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
   <div id="timer" class="timer">01:15:00</div>
   <button id="startBtn">Starta</button>
+  <div id="endText" class="end-text">TÄVLINGEN ÄR AVSLUTAD!</div>
 
 <script>
 const START_MINUTES = 75;
 let totalMs = START_MINUTES * 60 * 1000;
 const timerEl = document.getElementById('timer');
 const startBtn = document.getElementById('startBtn');
+const endText = document.getElementById('endText');
 
 let startAt = null;
 let elapsedPause = 0;
@@ -73,6 +84,8 @@ function update(){
   timerEl.textContent = format(remaining);
   if(remaining <= 0){
     cancelAnimationFrame(rafId);
+    timerEl.style.display = "none";       // Dölj timern
+    endText.style.display = "block";      // Visa sluttexten
     return;
   }
   rafId = requestAnimationFrame(update);
