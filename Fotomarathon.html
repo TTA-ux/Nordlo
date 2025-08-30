@@ -44,7 +44,7 @@
     <div style="text-align:center; margin-bottom: 20px;">
       <div id="timerDisplay">75:00</div>
       <div id="pauseTimerDisplay"></div>
-      <div id="checklistProgress">0% klara</div>
+      <div id="checklistProgress">0% klart</div>
       <button id="startTimerBtn">Starta tävlingen</button>
       <button id="pauseBtn" disabled>Pausa 10 min</button>
       <button id="resetTimerBtn">Nollställ timer</button>
@@ -236,7 +236,7 @@
       if(localStorage.getItem(LS.pauseStart)) return; // redan i paus
       if(localStorage.getItem(LS.pausedOnce) === 'true') return; // bara en gång
 
-      if(!confirm("OBS! Denna går att använda endast en gång!\nÄr du säker på att du vill pausa?")) return;
+      if(!confirm("OBS! Denna går att använda endast en gång!\nÄr du SÄKER på att du vill pausa?")) return;
 
       localStorage.setItem(LS.pausedOnce, 'true');
       pausedOnce = true;
@@ -295,7 +295,7 @@
 
     // Nollställ allt till ursprungsläget
     releaseBtn.addEventListener('click', ()=>{
-      if(!confirm("Vill du verkligen släppa alla spärrar och nollställa?")) return;
+      if(!confirm("Vill du släppa alla spärrar och nollställa?")) return;
 
       clearInterval(mainTimer);
       clearInterval(pauseTimer);
