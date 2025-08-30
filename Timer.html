@@ -9,22 +9,18 @@
       margin: 0;
       height: 100vh;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       background: #0f1724;
       color: white;
       font-family: Arial, sans-serif;
+      flex-direction: column;
     }
     .timer {
       font-size: 120px;
       font-weight: bold;
       text-shadow: 0 4px 18px rgba(0,0,0,0.6);
       margin-bottom: 40px;
-    }
-    .buttons {
-      display: flex;
-      gap: 20px;
     }
     button {
       background: #22c55e;
@@ -50,21 +46,18 @@
 </head>
 <body>
   <div id="timer" class="timer">01:15:00</div>
-  <div class="buttons">
-    <button id="startBtn">Starta</button>
-    <button id="pauseBtn">+10 min</button>
-  </div>
+  <button id="startBtn">Starta</button>
 
 <script>
 const START_MINUTES = 75;
 let totalMs = START_MINUTES * 60 * 1000;
 const timerEl = document.getElementById('timer');
 const startBtn = document.getElementById('startBtn');
-const pauseBtn = document.getElementById('pauseBtn');
 
 let startAt = null;
 let elapsedPause = 0;
 let rafId = null;
+let clickCount = 0;
 
 function format(ms){
   const totalSec = Math.max(0, Math.ceil(ms/1000));
@@ -81,25 +74,4 @@ function format(ms){
 function update(){
   const elapsed = Date.now() - startAt + elapsedPause;
   const remaining = Math.max(0, totalMs - elapsed);
-  timerEl.textContent = format(remaining);
-  if(remaining <= 0){
-    cancelAnimationFrame(rafId);
-    return;
-  }
-  rafId = requestAnimationFrame(update);
-}
-
-startBtn.addEventListener('click', () => {
-  if(startAt) return; // förhindra dubbelstart
-  startAt = Date.now();
-  startBtn.disabled = true;
-  update();
-});
-
-pauseBtn.addEventListener('click', () => {
-  if(!startAt) return; // funkar bara efter start
-  totalMs += 10 * 60 * 1000; // lägg till 10 minuter
-});
-</script>
-</body>
-</html>
+  t
