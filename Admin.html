@@ -281,10 +281,14 @@
     pauseBtn.addEventListener('click', startPause);
 
 resetBtn.addEventListener('click', () => {
-  
-  document.getElementById("alarmSound").play();
+  // Spela alarm-ljud
+  const alarm = document.getElementById("alarmSound");
+  alarm.play();
 
-  alert("APP-APP-APP!\nFörsök inte fuska!\n\nEtt meddelande har skickats till ledningen att ni tryckt på denna knapp!");
+  // Visa alert efter 200 ms (så ljudet hinner starta)
+  setTimeout(() => {
+    alert("APP-APP-APP!\nFörsök inte fuska!\n\nEtt meddelande har skickats till ledningen att ni tryckt på denna knapp!");
+  }, 200);
 });
 
     // ---- Släpp spärrar via loggan ----
@@ -366,6 +370,7 @@ resetBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
