@@ -376,11 +376,47 @@ resetBtn.addEventListener('click', () => {
       }
     })();
   </script>
-  <div id="pauseEndPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; padding:20px; border:2px solid #4CAF50; border-radius:10px; text-align:center; z-index:1000; font-size:18px;">
-  Pausen är slut!
-  <br><br>
-  <button onclick="document.getElementById('pauseEndPopup').style.display='none'">OK</button>
-</div>
+<!-- Ljud och popup för paus slut -->
+  <audio id="pauseEndSound" src="Nordlo/Kazoo.mp3" preload="auto"></audio>
+
+  <div id="pauseEndPopup" style="
+      display:none; 
+      position:fixed; 
+      top:50%; 
+      left:50%; 
+      transform:translate(-50%,-50%); 
+      background:#4CAF50; 
+      color:white; 
+      padding:20px; 
+      border:2px solid #388E3C; 
+      border-radius:10px; 
+      text-align:center; 
+      z-index:1000; 
+      font-size:18px;
+  ">
+    Pausen är slut!
+    <br><br>
+    <button onclick="document.getElementById('pauseEndPopup').style.display='none'" 
+            style="background:#388E3C; color:white; padding:5px 10px; border:none; border-radius:5px;">
+      OK
+    </button>
+  </div>
+
+  <script>
+  function showPauseEndPopup() {
+      const audio = document.getElementById('pauseEndSound');
+      audio.play().catch(e => console.log("Ljud kunde inte spelas: ", e));
+      document.getElementById('pauseEndPopup').style.display = 'block';
+  }
+
+  // Koppla till pausslut-funktionen
+  endPauseAndResume = (function(original){
+      return function(){
+          original();           // kör den vanliga pausen-slut-logiken
+          showPauseEndPopup();  // spela ljud och visa popup
+      }
+  })(endPauseAndResume);
+  </script>
 </body>
 </html>
 
