@@ -417,6 +417,44 @@ resetBtn.addEventListener('click', () => {
       }
   })(endPauseAndResume);
   </script>
+  
+  <script>
+  // Skapa ljudobjekt för reset-knappen
+  const resetSound = new Audio('Nordlo/Alarm.mp3');
+
+  // Hämta reset-knappen
+  const resetBtn = document.getElementById('resetTimerBtn');
+
+  resetBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // stoppar standardclick om det behövs
+
+    // Spela ljudet först
+    resetSound.currentTime = 0;
+    resetSound.play().then(() => {
+      // När ljudet startar, visa röd popup med vit text
+      Swal.fire({
+        title: 'OBS!',
+        text: 'APP-APP-APP!\nFörsök inte fuska!\n\nEtt meddelande har skickats till ledningen att ni tryckt på denna knapp!',
+        icon: 'warning',
+        background: '#ff0000',  // röd bakgrund
+        color: '#ffffff',       // vit text
+        confirmButtonColor: '#ffffff',
+        confirmButtonText: 'OK'
+      });
+    }).catch((err) => {
+      // Om ljudet inte spelas, visa ändå popupen
+      Swal.fire({
+        title: 'OBS!',
+        text: 'APP-APP-APP!\nFörsök inte fuska!\n\nEtt meddelande har skickats till ledningen att ni tryckt på denna knapp!',
+        icon: 'warning',
+        background: '#ff0000',
+        color: '#ffffff',
+        confirmButtonColor: '#ffffff',
+        confirmButtonText: 'OK'
+      });
+    });
+  });
+</script>
 </body>
 </html>
 
