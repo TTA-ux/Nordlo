@@ -280,9 +280,12 @@
     startBtn.addEventListener('click', startMain);
     pauseBtn.addEventListener('click', startPause);
 
-    resetBtn.addEventListener('click', () => {
-      alert("APP-APP-APP!\nFörsök inte fuska!\n\nEtt meddelande har skickats till ledningen att ni tryckt på denna knapp!");
-    });
+resetBtn.addEventListener('click', () => {
+  
+  document.getElementById("alarmSound").play();
+
+  alert("APP-APP-APP!\nFörsök inte fuska!\n\nEtt meddelande har skickats till ledningen att ni tryckt på denna knapp!");
+});
 
     // ---- Släpp spärrar via loggan ----
     logoBtn.addEventListener('click', ()=> {
@@ -363,6 +366,7 @@
   </script>
 </body>
 </html>
+
 
 
 
