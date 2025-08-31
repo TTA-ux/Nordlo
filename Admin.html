@@ -25,6 +25,7 @@
     button:disabled { opacity: 0.6; cursor: not-allowed; }
     #pauseTimerDisplay { color: red; }
   </style>
+  
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
@@ -54,7 +55,9 @@
 
     <ul id="checklist" style="display:none;"></ul>
   </div>
-
+<!-- Ljudfiler -->
+<audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
+<audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
   <script>
     // ---- Konfig ----
     const TOTAL_MINUTES = 75;          // Byt till 11 för test
@@ -200,27 +203,30 @@
     }
 
     function startMain(){
-      if(timerStarted) return;
-      timerStarted = true;
+  if(timerStarted) return;
+  timerStarted = true;
 
-      startBtn.disabled = true;
-      startBtn.style.backgroundColor = "#888";
-      pauseBtn.disabled = false;
-      pauseBtn.style.backgroundColor = "#4CAF50";
-      showChecklist(true);
-      preventReload(true);
+  // 🎵 Spela Kazoo när timern startar
+  document.getElementById("kazooSound").play();
 
-      if(!localStorage.getItem(LS.timerStart)){
-        setNum(LS.timerStart, getNow());
-        setNum(LS.totalPaused, 0);
-        clr(LS.pauseStart);
-        clr(LS.fiveMinWarned);
-        clr(LS.doneWarned);
-      }
+  startBtn.disabled = true;
+  startBtn.style.backgroundColor = "#888";
+  pauseBtn.disabled = false;
+  pauseBtn.style.backgroundColor = "#4CAF50";
+  showChecklist(true);
+  preventReload(true);
 
-      pausedOnce = localStorage.getItem(LS.pausedOnce) === 'true';
-      startMainTick();
-    }
+  if(!localStorage.getItem(LS.timerStart)){
+    setNum(LS.timerStart, getNow());
+    setNum(LS.totalPaused, 0);
+    clr(LS.pauseStart);
+    clr(LS.fiveMinWarned);
+    clr(LS.doneWarned);
+  }
+
+  pausedOnce = localStorage.getItem(LS.pausedOnce) === 'true';
+  startMainTick();
+}
 
     // ---- Paus ----
     function startPause(){
@@ -357,5 +363,6 @@
   </script>
 </body>
 </html>
+
 
 
