@@ -1,105 +1,177 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>75 minuters timer</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #0f1724;
-      color: white;
-      font-family: Arial, sans-serif;
-      flex-direction: column;
-      text-align: center;
-    }
-    .timer {
-      font-size: 120px;
-      font-weight: bold;
-      text-shadow: 0 4px 18px rgba(0,0,0,0.6);
-      margin-bottom: 40px;
-    }
-    button {
-      background: #22c55e;
-      color: #052018;
-      border: none;
-      padding: 18px 40px;
-      border-radius: 10px;
-      font-size: 22px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 6px 18px rgba(34,197,94,0.3);
-      transition: transform 0.15s ease;
-    }
-    button:active {
-      transform: scale(0.97);
-    }
-    button[disabled] {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .end-text {
-      display: none;
-      font-size: 80px;
-      font-weight: bold;
-      color: #f43f5e;
-      text-shadow: 0 4px 20px rgba(0,0,0,0.8);
-      margin-top: 20px;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>75 minuters timer</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0f1724;
+    color: white;
+    font-family: Arial, sans-serif;
+    flex-direction: column;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .timer {
+    display: none;
+    font-size: 120px;
+    font-weight: bold;
+    text-shadow: 0 4px 18px rgba(0,0,0,0.6);
+    margin-bottom: 40px;
+    z-index: 1;
+    position: relative;
+  }
+  .countdown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.1);
+    font-size: 200px;
+    font-weight: bold;
+    color: white;
+    opacity: 1;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  button {
+    background: #22c55e;
+    color: #052018;
+    border: none;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(34,197,94,0.3);
+    transition: transform 0.15s ease, background 0.3s, opacity 0.3s;
+    margin-top: 20px;
+    z-index: 10;
+    position: relative;
+  }
+  button:active {
+    transform: scale(1.2);
+    background: #16a34a;
+  }
+  .end-text {
+    display: none;
+    font-size: 80px;
+    font-weight: bold;
+    color: #f43f5e;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    margin-top: 20px;
+  }
+</style>
 </head>
 <body>
-  <div id="timer" class="timer">01:15:00</div>
-  <button id="startBtn">Starta</button>
-  <div id="endText" class="end-text">TÄVLINGEN ÄR AVSLUTAD!</div>
+<div id="timer" class="timer">75:00</div>
+<button id="startBtn">Starta</button>
+<div id="endText" class="end-text">TÄVLINGEN ÄR AVSLUTAD!</div>
 
 <script>
-const START_MINUTES = 75;
+const START_MINUTES = 1;
 let totalMs = START_MINUTES * 60 * 1000;
 const timerEl = document.getElementById('timer');
 const startBtn = document.getElementById('startBtn');
 const endText = document.getElementById('endText');
 
 let startAt = null;
-let elapsedPause = 0;
 let rafId = null;
-let clickCount = 0;
+let started = false;
 
 function format(ms){
   const totalSec = Math.max(0, Math.ceil(ms/1000));
-  const hrs = Math.floor(totalSec / 3600);
-  const mins = Math.floor((totalSec % 3600) / 60);
+  const mins = Math.floor(totalSec / 60);
   const secs = totalSec % 60;
-  return `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
 }
 
 function update(){
-  const elapsed = Date.now() - startAt + elapsedPause;
+  const elapsed = Date.now() - startAt;
   const remaining = Math.max(0, totalMs - elapsed);
   timerEl.textContent = format(remaining);
+
   if(remaining <= 0){
     cancelAnimationFrame(rafId);
-    timerEl.style.display = "none";       // Dölj timern
-    endText.style.display = "block";      // Visa sluttexten
+    timerEl.style.display = "none";       
+    endText.style.display = "block";      
     return;
   }
   rafId = requestAnimationFrame(update);
 }
 
-startBtn.addEventListener('click', () => {
-  clickCount++;
-  if(clickCount === 1){
-    startAt = Date.now();
-    update();
-  } else if(clickCount === 2){
-    totalMs += 10 * 60 * 1000; // lägg till 10 minuter
-    startBtn.style.display = 'none'; // döljer knappen
+function animateNumber(num, duration=1500){
+  return new Promise(resolve => {
+    const div = document.createElement('div');
+    div.className = 'countdown';
+    div.textContent = num;
+    div.style.transform = 'translate(-50%, -50%) scale(0.1)';
+    div.style.opacity = '1';
+    document.body.appendChild(div);
+
+    requestAnimationFrame(() => {
+      div.style.transition = `transform ${duration}ms ease-out, opacity ${duration}ms ease-out`;
+      div.style.transform = 'translate(-50%, -50%) scale(5)';
+      div.style.opacity = '0';
+    });
+
+    setTimeout(() => {
+      div.remove();
+      resolve();
+    }, duration);
+  });
+}
+
+async function startCountdownAndTimer() {
+  await animateNumber(3);
+  await new Promise(r => setTimeout(r, 300));
+  await animateNumber(2);
+  await new Promise(r => setTimeout(r, 300));
+  await animateNumber(1);
+
+  timerEl.style.display = "block";
+  timerEl.style.fontSize = "120px";
+
+  // Zooma in långsamt till 280px under 1 sekunder
+  let startFont = 120;
+  let endFont = 280;
+  let startTime = Date.now();
+  function zoomIn() {
+    let t = (Date.now() - startTime) / 1000;
+    if(t > 1) t = 1;
+    timerEl.style.fontSize = startFont + (endFont - startFont) * t + 'px';
+    if(t < 1) requestAnimationFrame(zoomIn);
   }
+  zoomIn();
+
+  startAt = Date.now();
+  update();
+
+  // Lägg på 10 minuter efter 5 minuter
+  setTimeout(() => {
+    totalMs += 10 * 60 * 1000;
+  }, 5 * 60 * 1000);
+}
+
+startBtn.addEventListener('click', () => {
+  if(started) return;
+  started = true;
+
+  // Zooma upp knappen lite och fade:ar ut
+  startBtn.style.transform = 'scale(1.5)';
+  startBtn.style.opacity = '0';
+
+  setTimeout(() => {
+    startBtn.style.display = "none";
+    startCountdownAndTimer();
+  }, 250);
 });
 </script>
 </body>
