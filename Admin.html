@@ -50,7 +50,7 @@
       <div id="checklistProgress">0% slutfört</div>
       <button id="startTimerBtn">Starta tävlingen</button>
       <button id="pauseBtn" disabled>Pausa 10 min</button>
-      <button id="resetTimerBtn">Köp mer tid!</button>
+      <button id="resetTimerBtn">Förläng tiden</button>u
     </div>
 
     <ul id="checklist" style="display:none;"></ul>
@@ -60,7 +60,7 @@
 <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 75;          // Byt till 11 för test
+    const TOTAL_MINUTES = 2;          // Byt till 11 för test
     const PAUSE_MINUTES = 1;
 
     // ---- Element ----
@@ -457,6 +457,7 @@ resetBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 
