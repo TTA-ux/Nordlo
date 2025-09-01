@@ -84,12 +84,12 @@
 
     // ---- Checklista ----
     const items = [
-      'En gruppbild på det minsta utrymmet ni får plats i',
+      'En gruppbild i det minsta utrymmet ni får plats i',
       'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)',
       'En oväntad vänskap...!',
-      'Alla i laget gör samma sak (tex Alla i luften, alla på huk, walk like an egyptian...)',
+      'Alla i laget gör samma sak (tex Alla i luften, alla på huk, "walk like an egyptian...")',
       'En “olycka” på semestern',
-      'Havstema',
+      'Tema "Havet"',
       'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.',
       'Skriv NORDLO i sanden på stranden och ta en gruppbild',
       'Kläm ihop nåt jättestort',
@@ -135,7 +135,7 @@
       const cb = checklist.querySelectorAll('input[type="checkbox"]');
       const total = cb.length;
       const checked = Array.from(cb).filter(x=>x.checked).length;
-      checklistProgress.innerText = `${Math.round((checked/total)*100)}% slutfört`;
+      checklistProgress.innerText = `${Math.round((checked/total)*100)}% slutfört (${checked}/${total})`;
     }
     updateChecklistProgress();
 
@@ -458,6 +458,7 @@ resetBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 
