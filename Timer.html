@@ -76,7 +76,7 @@
 <div id="endText" class="end-text">TÄVLINGEN ÄR AVSLUTAD!</div>
 
 <script>
-const START_MINUTES = 1;
+const START_MINUTES = 75;
 let totalMs = START_MINUTES * 60 * 1000;
 const timerEl = document.getElementById('timer');
 const startBtn = document.getElementById('startBtn');
@@ -107,7 +107,7 @@ function update(){
   rafId = requestAnimationFrame(update);
 }
 
-function animateNumber(num, duration=1500){
+async function animateNumber(num, duration=1500){
   return new Promise(resolve => {
     const div = document.createElement('div');
     div.className = 'countdown';
@@ -117,9 +117,11 @@ function animateNumber(num, duration=1500){
     document.body.appendChild(div);
 
     requestAnimationFrame(() => {
-      div.style.transition = `transform ${duration}ms ease-out, opacity ${duration}ms ease-out`;
-      div.style.transform = 'translate(-50%, -50%) scale(5)';
-      div.style.opacity = '0';
+      requestAnimationFrame(() => {
+        div.style.transition = `transform ${duration}ms ease-out, opacity ${duration}ms ease-out`;
+        div.style.transform = 'translate(-50%, -50%) scale(5)';
+        div.style.opacity = '0';
+      });
     });
 
     setTimeout(() => {
@@ -139,12 +141,12 @@ async function startCountdownAndTimer() {
   timerEl.style.display = "block";
   timerEl.style.fontSize = "120px";
 
-  // Zooma in långsamt till 280px under 1 sekunder
+  // Zooma in långsamt till 280px under 3 sekunder
   let startFont = 120;
   let endFont = 280;
   let startTime = Date.now();
   function zoomIn() {
-    let t = (Date.now() - startTime) / 1000;
+    let t = (Date.now() - startTime) / 400;
     if(t > 1) t = 1;
     timerEl.style.fontSize = startFont + (endFont - startFont) * t + 'px';
     if(t < 1) requestAnimationFrame(zoomIn);
@@ -164,13 +166,15 @@ startBtn.addEventListener('click', () => {
   if(started) return;
   started = true;
 
-  // Zooma upp knappen lite och fade:ar ut
+  // Knappen försvinner direkt
   startBtn.style.transform = 'scale(1.5)';
   startBtn.style.opacity = '0';
-
   setTimeout(() => {
     startBtn.style.display = "none";
-    startCountdownAndTimer();
+    // Väntar 1,5 sekunder innan nedräkning
+    setTimeout(() => {
+      startCountdownAndTimer();
+    }, 1500);
   }, 250);
 });
 </script>
