@@ -161,7 +161,7 @@
       totalPaused: 'totalPaused',
       pauseStart: 'pauseStart',
       pausedOnce: 'pausedOnce',
-      fiveMinWarned: 'fiveMinWarned',
+     
       doneWarned: 'doneWarned'
     };
 
@@ -178,18 +178,18 @@
         const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
         let remainingSec = Math.ceil((totalDuration - elapsed)/1000);
 
-        if(remainingSec === 300 && !localStorage.getItem(LS.fiveMinWarned)){
-          localStorage.setItem(LS.fiveMinWarned,'1');
-          if('vibrate' in navigator){ navigator.vibrate(10000); }
-          alert('5 minuter kvar av tävlingen!');
-        }
+
+
+
+
+
 
         if(remainingSec <= 0){
           remainingSec = 0;
           clearInterval(mainTimer);
           if(!localStorage.getItem(LS.doneWarned)){
             localStorage.setItem(LS.doneWarned,'1');
-            if('vibrate' in navigator){ navigator.vibrate(10000); }
+           
             alert('Tävlingen är avslutad!');
           }
           clr(LS.pauseStart);
@@ -221,7 +221,7 @@
     setNum(LS.timerStart, getNow());
     setNum(LS.totalPaused, 0);
     clr(LS.pauseStart);
-    clr(LS.fiveMinWarned);
+    
     clr(LS.doneWarned);
   }
 
@@ -310,7 +310,7 @@ resetBtn.addEventListener('click', () => {
       clr(LS.totalPaused);
       clr(LS.pauseStart);
       clr(LS.pausedOnce);
-      clr(LS.fiveMinWarned);
+      
       clr(LS.doneWarned);
 
       timerStarted = false;
@@ -458,7 +458,6 @@ resetBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
-
 
 
 
