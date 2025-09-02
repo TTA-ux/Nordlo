@@ -66,6 +66,7 @@
 <!-- Ljudfiler -->
 <audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
 <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
+<audio id="endSound" src="Endmusic.mp3" preload="auto"></audio>  
   <script>
     // ---- Konfig ----
     const TOTAL_MINUTES = 0.1;          // Byt till 11 för test
@@ -186,8 +187,8 @@
 
     // ---- Huvudtimer ----
   function startMainTick(){
-    clearInterval(mainTimer);
-    mainTimer = setInterval(()=>{
+  clearInterval(mainTimer);
+  mainTimer = setInterval(()=>{
     const timerStart = getNum(LS.timerStart);
     const totalPaused = getNum(LS.totalPaused);
     const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
@@ -200,6 +201,7 @@
         localStorage.setItem(LS.doneWarned,'1');
         alert('Tävlingen är avslutad!');
         document.getElementById("endMessage").style.display = "block"; // 🚨 Visa slutmeddelande
+        document.getElementById("endSound").play().catch(()=>{});      // 🔊 Spela slutljud
       }
       clr(LS.pauseStart);
       clr(LS.pausedOnce);
@@ -209,7 +211,7 @@
       timerStarted = false;
     }
 
-    // 🔴 Visa 5-minutersvarning
+    // 🔴 5-minutersvarning (endast text, inget ljud)
     if(remainingSec <= 5*60 && remainingSec > 0){
       document.getElementById("warningMessage").style.display = "block";
     } else {
@@ -219,6 +221,7 @@
     timerDisplay.innerText = formatTime(remainingSec);
   }, 1000);
 }
+
 
     function startMain(){
       if(timerStarted) return;
