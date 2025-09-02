@@ -201,7 +201,7 @@
         localStorage.setItem(LS.doneWarned,'1');
         //alert('Tävlingen är avslutad!');
         document.getElementById("endMessage").style.display = "block"; // 🚨 Visa slutmeddelande
-        document.getElementById("endSound").play().catch(()=>{});      // 🔊 Spela slutljud
+        document.getElementById("endSound").play();      // 🔊 Spela slutljud
       }
       clr(LS.pauseStart);
       clr(LS.pausedOnce);
