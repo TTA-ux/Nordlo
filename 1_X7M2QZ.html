@@ -48,10 +48,10 @@
     <div style="text-align:center; margin-bottom: 20px;">
       <div id="timerDisplay"></div>
       <div id="warningMessage" style="display:none; text-align:center; font-size:28px; font-weight:bold; color:red; margin-top:10px;">
-  ⏰ 5 minuter kvar – skynda er!
+  ⏰ Mindre än 5 minuter kvar – skynda er!
 </div>
 
-<div id="endMessage" style="display:none; text-align:center; font-size:32px; font-weight:bold; color:red; margin-top:15px;">
+<div id="endMessage" style="display:none; text-align:center; font-size:28px; font-weight:bold; color:red; margin-top:15px;">
   🚨 Tävlingen är avslutad! 🚨
 </div>
       <div id="pauseTimerDisplay"></div>
@@ -68,7 +68,7 @@
 <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 6;          // Byt till 11 för test
+    const TOTAL_MINUTES = 1;          // Byt till 11 för test
     const PAUSE_MINUTES = 1;
 
     // ---- Element ----
@@ -95,16 +95,16 @@
       'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)',
       'En oväntad vänskap...!',
       'Alla i laget gör samma sak (tex Alla i luften, alla på huk, "walk like an egyptian...")',
-      'En “olycka” på semestern😱',
-      'Tema "Havet"🌊',
+      'En “olycka” på semestern 😱',
+      'Tema "Havet" 🌊',
       'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.',
-      'Skriv NORDLO i sanden på stranden och ta en gruppbild❤️',
+      'Skriv NORDLO i sanden på stranden och ta en gruppbild ❤️',
       'Kläm ihop nåt jättestort',
       'Det minsta och största ni hittar som ryms i en hand',
-      'Gör honnör framför en fontän!🫡',
+      'Gör honnör framför en fontän! 🫡',
       'Krama en palm!',
-      'Gör tummen upp framför Iglesia de San Román👍',
-      'Asgarva!🤣',
+      'Gör tummen upp framför Iglesia de San Román 👍',
+      'Asgarva! 🤣🤣🤣',
       'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet',
       'Alla är vända bort från kameran',
       'Ta en gruppbild med en katt/hund/valfritt djur',
@@ -113,9 +113,9 @@
       'Ha en livlig argumentation',
       'Spela fotboll',
       'Ät nåt litet, men gapa som att det är nåt jättestort',
-      'Återskapa skivomslaget till Beatles - Abbey road🎵',
+      'Återskapa skivomslaget till Beatles - Abbey road 🎵',
       'Tugga tuggummi och blås en stor bubbla',
-      'Ta en bild med en udda hatt🎩'
+      'Ta en bild med en udda hatt 🎩'
     ];
 
     items.forEach((item,index)=>{
