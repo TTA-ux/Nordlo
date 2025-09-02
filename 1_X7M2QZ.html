@@ -144,7 +144,7 @@
       const cb = checklist.querySelectorAll('input[type="checkbox"]');
       const total = cb.length;
       const checked = Array.from(cb).filter(x=>x.checked).length;
-      checklistProgress.innerText = `${Math.round((checked/total)*100)}% slutfört}`;
+      checklistProgress.innerText = `${Math.round((checked/total)*100)}% slutfört`;
     }
     updateChecklistProgress();
 
