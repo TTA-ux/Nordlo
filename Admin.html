@@ -59,6 +59,7 @@
 <!-- Ljudfiler -->
 <audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
 <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
+<audio id="endMusic" src="endmusic.mp3" preload="auto"></audio>  
   <script>
     // ---- Konfig ----
     const TOTAL_MINUTES = 75;          // Byt till 11 för test
@@ -172,36 +173,50 @@
     function clr(key){ localStorage.removeItem(key); }
 
     // ---- Huvudtimer ----
-    function startMainTick(){
-      clearInterval(mainTimer);
-      mainTimer = setInterval(()=>{
-        const timerStart = getNum(LS.timerStart);
-        const totalPaused = getNum(LS.totalPaused);
-        const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
-        let remainingSec = Math.ceil((totalDuration - elapsed)/1000);
+function startMainTick() {
+  clearInterval(mainTimer);
+  mainTimer = setInterval(() => {
+    const timerStart = getNum(LS.timerStart);
+    const totalPaused = getNum(LS.totalPaused);
+    const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
+    let remainingSec = Math.ceil((totalDuration - elapsed) / 1000);
 
-        if(remainingSec <= 0){
-          remainingSec = 0;
-          clearInterval(mainTimer);
-          if(!localStorage.getItem(LS.doneWarned)){
-            localStorage.setItem(LS.doneWarned,'1');
-           
-            alert('Tävlingen är avslutad!');
-          }
-          clr(LS.pauseStart);
-          clr(LS.pausedOnce);
-          preventReload(false);
-          pauseBtn.disabled = false;
-          pauseBtn.style.backgroundColor = "#4CAF50";
-          timerStarted = false;
+    if (remainingSec <= 0) {
+      remainingSec = 0;
+      clearInterval(mainTimer);
+
+      // Visa avslutstext
+      timerDisplay.innerText = 'Tävlingen är avslutad';
+
+      // Spela slutmusik
+      const endMusic = document.getElementById('endMusic');
+      if (endMusic) {
+        try {
+          endMusic.currentTime = 0;
+          endMusic.play();
+        } catch (e) {
+          console.log('Kunde inte spela upp slutmusik automatiskt:', e);
         }
-        timerDisplay.innerText = formatTime(remainingSec);
-      }, 1000);
+      }
+
+      if (!localStorage.getItem(LS.doneWarned)) {
+        localStorage.setItem(LS.doneWarned, '1');
+        alert('Tävlingen är avslutad!');
+      }
+
+      clr(LS.pauseStart);
+      clr(LS.pausedOnce);
+      preventReload(false);
+      pauseBtn.disabled = false;
+      pauseBtn.style.backgroundColor = "#4CAF50";
+      timerStarted = false;
+
+      return; // undvik att skriva över avslutstexten nedan
     }
 
-    function startMain(){
-  if(timerStarted) return;
-  timerStarted = true;
+    timerDisplay.innerText = formatTime(remainingSec);
+  }, 1000);
+}
 
   // 🎵 Spela Kazoo när timern startar
   document.getElementById("kazooSound").play();
@@ -473,6 +488,7 @@ resetBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 
