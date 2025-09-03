@@ -180,12 +180,6 @@
         const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
         let remainingSec = Math.ceil((totalDuration - elapsed)/1000);
 
-
-
-
-
-
-
         if(remainingSec <= 0){
           remainingSec = 0;
           clearInterval(mainTimer);
@@ -378,6 +372,25 @@ resetBtn.addEventListener('click', () => {
         pauseBtn.style.backgroundColor = "#888";
       }
     })();
+
+    // ---- Auto-reload vid återkomst ----
+    function setupAutoReload() {
+      // Om sidan återställs från cache efter sleep
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
+
+      // Om användaren växlar tillbaka till sidan (t.ex. mobilen väcks)
+      document.addEventListener("visibilitychange", function() {
+        if (!document.hidden) {
+          window.location.reload();
+        }
+      });
+    }
+
+    setupAutoReload();
   </script>
 <!-- Ljud och popup för paus slut -->
   <audio id="pauseEndSound" src="Nordlo/Kazoo.mp3" preload="auto"></audio>
@@ -460,6 +473,7 @@ resetBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 
