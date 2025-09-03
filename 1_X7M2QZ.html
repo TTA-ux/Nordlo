@@ -66,6 +66,7 @@
 <!-- Ljudfiler -->
 <audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
 <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
+<audio id="endMusic" src="endmusic.mp3" preload="auto"></audio>
 
   <script>
     // ---- Konfig ----
@@ -194,22 +195,25 @@
     const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
     let remainingSec = Math.ceil((totalDuration - elapsed)/1000);
 
-    if(remainingSec <= 0){
-      remainingSec = 0;
-      clearInterval(mainTimer);
-      if(!localStorage.getItem(LS.doneWarned)){
-        localStorage.setItem(LS.doneWarned,'1');
-        //alert('Tävlingen är avslutad!');
-        document.getElementById("endMessage").style.display = "block" // 🚨 Visa slutmeddelande
-   
-      }
-      clr(LS.pauseStart);
-      clr(LS.pausedOnce);
-      preventReload(false);
-      pauseBtn.disabled = false;
-      pauseBtn.style.backgroundColor = "#4CAF50";
-      timerStarted = false;
-    }
+if(remainingSec <= 0){
+  remainingSec = 0;
+  clearInterval(mainTimer);
+  if(!localStorage.getItem(LS.doneWarned)){
+    localStorage.setItem(LS.doneWarned,'1');
+    document.getElementById("endMessage").style.display = "block"; // 🚨 Visa slutmeddelande
+    
+    // 🔊 Spela slutmusik
+    const endMusic = document.getElementById("endMusic");
+    endMusic.currentTime = 0;
+    endMusic.play().catch(err => console.log("Kunde inte spela ljud:", err));
+  }
+  clr(LS.pauseStart);
+  clr(LS.pausedOnce);
+  preventReload(false);
+  pauseBtn.disabled = false;
+  pauseBtn.style.backgroundColor = "#4CAF50";
+  timerStarted = false;
+}
 
     // 🔴 5-minutersvarning (endast text, inget ljud)
     if(remainingSec <= 5*60 && remainingSec > 0){
