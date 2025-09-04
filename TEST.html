@@ -360,38 +360,5 @@ function startMainTick(){ clearInterval(mainTimer); mainTimer = setInterval(()=>
       }
     })();
   </script>
-
-
- 
-  
-  <script>
-  // Skapa ljudobjekt för reset-knappen
-  //const resetSound = new Audio('Alarm.mp3');
-
-  // Återanvänd knappen (undvik dubbel-deklaration av resetBtn)
-  const resetBtn2 = document.getElementById('resetTimerBtn');
-
-  resetBtn2.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    resetSound.currentTime = 0;
-    resetSound.play().then(() => {
-      // Kräver SweetAlert2 (Swal) om den är laddad i sidan
-      if (window.Swal) {
-        Swal.fire({
-          title: 'OBS!',
-          text: '🚨APP-APP-APP!🚨\nFörsök inte fuska!\n\nNi har tryckt på en förbjuden knapp!⚠️\n\nEtt meddelande har skickats till ledningsgruppen!',
-          icon: 'warning',
-          background: '#ff0000',
-          color: '#ffffff',
-          confirmButtonColor: '#ffffff',
-          confirmButtonText: 'OK'
-        });
-      }
-    }).catch(() => {
-      // fallback: ingenting extra om ljudet inte kan spelas
-    });
-  });
-  </script>
 </body>
 </html>
