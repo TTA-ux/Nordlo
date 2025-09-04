@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FOTOMARATON</title>
- <style>
+  <style>
     body { font-family: Arial, sans-serif; background: #f4f4f9; margin:0; padding:0; }
     .logo { width: 100%; display: block; cursor:pointer; }
     .container { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 10px; }
@@ -25,11 +25,9 @@
     button:disabled { opacity: 0.6; cursor: not-allowed; }
     #pauseTimerDisplay { color: red; }
   </style>
-  
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-  <!-- Logotypen fungerar nu som "Släpp spärrar"-knapp -->
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
@@ -39,7 +37,7 @@
     <div class="instructions">
       <div class="rules-title">REGLER</div>
       <p>- Alla i laget ska synas på alla bilderna.</p>
-      <p>- En person måste alltid utföra samma sak på alla bilder. (Gapa/stå åt fel håll eller nåt annat fyndigt.)</p>
+      <p>- En person måste alltid utföra samma sak på alla bilder.</p>
       <p>- Laget ska lämna in minst 15 bilder.</p>
       <p>- Laget måste vara tillbaka exakt 75 minuter efter startsignalen.</p>
       <p>- HÅLL TIDEN!.</p>
@@ -48,12 +46,11 @@
     <div style="text-align:center; margin-bottom: 20px;">
       <div id="timerDisplay"></div>
       <div id="warningMessage" style="display:none; text-align:center; font-size:28px; font-weight:bold; color:red; margin-top:10px;">
-  ⏰ Mindre än 5 minuter kvar – skynda er!
-</div>
-
-<div id="endMessage" style="display:none; text-align:center; font-size:20px; font-weight:bold; color:red; margin-top:15px;">
-  🚨 Tävlingen är avslutad! 🚨
-</div>
+        ⏰ Mindre än 5 minuter kvar – skynda er!
+      </div>
+      <div id="endMessage" style="display:none; text-align:center; font-size:20px; font-weight:bold; color:red; margin-top:15px;">
+        🚨 Tävlingen är avslutad! 🚨
+      </div>
       <div id="pauseTimerDisplay"></div>
       <div id="checklistProgress">0% slutfört</div>
       <button id="startTimerBtn">Starta tävlingen 🏁</button>
@@ -63,14 +60,14 @@
 
     <ul id="checklist" style="display:none;"></ul>
   </div>
-<!-- Ljudfiler -->
-<audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
-<audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
-<audio id="endMusic" src="endmusic.mp3" preload="metadata"></audio>
+
+  <audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
+  <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
+  <audio id="endMusic" src="endmusic.mp3" preload="metadata"></audio>
 
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 6;          // Byt till 11 för test
+    const TOTAL_MINUTES = 6;          
     const PAUSE_MINUTES = 1;
 
     // ---- Element ----
@@ -94,30 +91,30 @@
     // ---- Checklista ----
     const items = [
       'En gruppbild i det minsta utrymmet ni får plats i',
-      'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)',
+      'Bygg något tillsammans',
       'En oväntad vänskap...!',
-      'Alla i laget gör samma sak (tex Alla i luften, alla på huk, "walk like an egyptian...")',
+      'Alla i laget gör samma sak',
       'En “olycka” på semestern 😱',
       'Tema "Havet" 🌊',
-      'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.',
-      'Skriv NORDLO i sanden på stranden och ta en gruppbild ❤️',
+      'Före & efter – affärsbild vs semesterbild',
+      'Skriv NORDLO i sanden ❤️',
       'Kläm ihop nåt jättestort',
-      'Det minsta och största ni hittar som ryms i en hand',
-      'Gör honnör framför en fontän! 🫡',
+      'Det minsta och största i en hand',
+      'Gör honnör framför en fontän 🫡',
       'Krama en palm!',
-      'Gör tummen upp framför Iglesia de San Román 👍',
+      'Tummen upp framför Iglesia de San Román 👍',
       'Asgarva! 🤣🤣🤣',
-      'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet',
+      'Turistfällan – posera framför vardagligt objekt',
       'Alla är vända bort från kameran',
-      'Ta en gruppbild med en katt/hund/valfritt djur',
-      'Peta på en motorcykel. En ska se glad ut, alla andra förskräckta',
+      'Gruppbild med ett djur',
+      'Peta på en motorcykel',
       'Ramla! (roliga gatan fram)',
       'Ha en livlig argumentation',
       'Spela fotboll',
-      'Ät nåt litet, men gapa som att det är nåt jättestort',
-      'Återskapa skivomslaget till Beatles - Abbey road 🎵',
-      'Tugga tuggummi och blås en stor bubbla',
-      'Ta en bild med en udda hatt 🎩'
+      'Ät nåt litet men gapa stort',
+      'Återskapa Beatles - Abbey road 🎵',
+      'Tugga tuggummi och blås en bubbla',
+      'Bild med udda hatt 🎩'
     ];
 
     items.forEach((item,index)=>{
@@ -163,10 +160,8 @@
     }
     function blockUnload(e){ e.preventDefault(); e.returnValue=''; }
     function showChecklist(show){ checklist.style.display = show ? 'block' : 'none'; }
-
     function getNow(){ return Date.now(); }
 
-    // Beräkna huvudtimer-värdet så som det var vid pausens start
     function computeRemainingAt(tsMs){
       const timerStart = getNum(LS.timerStart);
       const totalPaused = getNum(LS.totalPaused);
@@ -187,7 +182,52 @@
     function clr(key){ localStorage.removeItem(key); }
 
     // ---- Huvudtimer ----
-function startMainTick(){ clearInterval(mainTimer); mainTimer = setInterval(()=>{ const timerStart = getNum(LS.timerStart); const totalPaused = getNum(LS.totalPaused); const elapsed = Math.max(0, getNow() - timerStart - totalPaused); let remainingSec = Math.ceil((totalDuration - elapsed)/1000); if(remainingSec <= 0){ remainingSec = 0; clearInterval(mainTimer); if(!localStorage.getItem(LS.doneWarned)){ localStorage.setItem(LS.doneWarned,'1'); // Visa slutmeddelande const endMsg = document.getElementById("endMessage"); endMsg.textContent = "Tävlingen är avslutad"; endMsg.style.display = "block"; // Spela upp slutmusiken const endMusic = document.getElementById("endMusic"); if (endMusic) { try { endMusic.currentTime = 0; const p = endMusic.play(); if (p && typeof p.then === 'function') { p.catch(()=>{ /* Autoplay kan blockeras av webbläsaren */ }); } } catch(e) { /* Ignorera fel vid uppspelning */ } } } clr(LS.pauseStart); clr(LS.pausedOnce); preventReload(false); pauseBtn.disabled = false; pauseBtn.style.backgroundColor = "#4CAF50"; timerStarted = false; // Sätt display vid 0 och dölj varningen timerDisplay.innerText = formatTime(0); const warn = document.getElementById("warningMessage"); if (warn) warn.style.display = "none"; return; // Avsluta tick-funktionen när tiden är slut } // 🔴 5-minutersvarning (endast text, inget ljud) if(remainingSec <= 5*60 && remainingSec > 0){ document.getElementById("warningMessage").style.display = "block"; } else { document.getElementById("warningMessage").style.display = "none"; } timerDisplay.innerText = formatTime(remainingSec); }, 1000); }
+    function startMainTick(){
+      clearInterval(mainTimer);
+      mainTimer = setInterval(()=>{
+        const timerStart = getNum(LS.timerStart);
+        const totalPaused = getNum(LS.totalPaused);
+        const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
+        let remainingSec = Math.ceil((totalDuration - elapsed)/1000);
+
+        if(remainingSec <= 0){
+          remainingSec = 0;
+          clearInterval(mainTimer);
+          if(!localStorage.getItem(LS.doneWarned)){
+            localStorage.setItem(LS.doneWarned,'1');
+            const endMsg = document.getElementById("endMessage");
+            endMsg.textContent = "Tävlingen är avslutad";
+            endMsg.style.display = "block";
+            const endMusic = document.getElementById("endMusic");
+            if (endMusic) {
+              try {
+                endMusic.currentTime = 0;
+                const p = endMusic.play();
+                if (p && typeof p.then === 'function') { p.catch(()=>{}); }
+              } catch(e) {}
+            }
+          }
+          clr(LS.pauseStart);
+          clr(LS.pausedOnce);
+          preventReload(false);
+          pauseBtn.disabled = false;
+          pauseBtn.style.backgroundColor = "#4CAF50";
+          timerStarted = false;
+          timerDisplay.innerText = formatTime(0);
+          const warn = document.getElementById("warningMessage");
+          if (warn) warn.style.display = "none";
+          return;
+        }
+
+        if(remainingSec <= 5*60 && remainingSec > 0){
+          document.getElementById("warningMessage").style.display = "block";
+        } else {
+          document.getElementById("warningMessage").style.display = "none";
+        }
+        timerDisplay.innerText = formatTime(remainingSec);
+      }, 1000);
+    }
+
     function startMain(){
       if(timerStarted) return;
       timerStarted = true;
@@ -218,7 +258,7 @@ function startMainTick(){ clearInterval(mainTimer); mainTimer = setInterval(()=>
       if(localStorage.getItem(LS.pauseStart)) return;
       if(localStorage.getItem(LS.pausedOnce) === 'true') return;
 
-      if(!confirm("🚨⚠️VARNING!⚠️🚨\n\nDenna godkända pausknapp går att använda endast EN gång!\n\nÄr du HELT SÄKER på att du vill pausa?")) return;
+      if(!confirm("🚨⚠️VARNING!⚠️🚨\n\nDenna paus går att använda EN gång!\n\nÄr du säker?")) return;
 
       localStorage.setItem(LS.pausedOnce, 'true');
       pausedOnce = true;
@@ -231,11 +271,9 @@ function startMainTick(){ clearInterval(mainTimer); mainTimer = setInterval(()=>
       setNum(LS.pauseStart, getNow());
       clearInterval(mainTimer);
 
-      // Frys huvudtimer-värdet (så att det visas även vid reload under paus)
       const remainingAtPause = computeRemainingAt(getNum(LS.pauseStart));
       timerDisplay.innerText = formatTime(remainingAtPause);
 
-      // Starta pausnedräkning
       clearInterval(pauseTimer);
       let remaining = Math.ceil(pauseDuration/1000);
       pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
@@ -260,7 +298,6 @@ function startMainTick(){ clearInterval(mainTimer); mainTimer = setInterval(()=>
       }
       clr(LS.pauseStart);
 
-
       showChecklist(true);
       startMainTick();
       preventReload(true);
@@ -274,11 +311,10 @@ function startMainTick(){ clearInterval(mainTimer); mainTimer = setInterval(()=>
       const alarm = document.getElementById("alarmSound");
       alarm.play();
       setTimeout(() => {
-        alert("🚨APP-APP-APP!🚨\nFörsök inte fuska!\n\nNi har tryckt på en förbjuden knapp!⚠️\n\nEtt meddelande har skickats till ledningsgruppen!");
+        alert("🚨APP-APP-APP!🚨\nFörsök inte fuska!\n\nKnappen är förbjuden!⚠️\n\nEtt meddelande har skickats till ledningsgruppen!");
       }, 200);
     });
 
-    // ---- Släpp spärrar via loggan ----
     logoBtn.addEventListener('click', ()=> {
       if(!confirm("Vill du släppa alla spärrar och nollställa?")) return;
 
@@ -324,12 +360,10 @@ function startMainTick(){ clearInterval(mainTimer); mainTimer = setInterval(()=>
         preventReload(true);
 
         if(inPause){
-          // Visa huvudtimer-värdet så som det var vid pausens start
           const pauseStartMs = getNum(LS.pauseStart);
           const remainingMainAtPause = computeRemainingAt(pauseStartMs);
           timerDisplay.innerText = formatTime(remainingMainAtPause);
 
-          // Återställ pausnedräkning
           const elapsed = getNow() - pauseStartMs;
           let remaining = Math.max(0, Math.ceil((pauseDuration - elapsed)/1000));
           pauseTimerDisplay.innerText = remaining>0 ? ("Paus " + formatTime(remaining)) : '';
@@ -358,8 +392,7 @@ function startMainTick(){ clearInterval(mainTimer); mainTimer = setInterval(()=>
         pauseBtn.disabled = true;
         pauseBtn.style.backgroundColor = "#888";
       }
-    })()
-                                                                                                                                                                                                                                                                                                                                                                                                                       
+    })();
   </script>
 </body>
 </html>
