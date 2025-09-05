@@ -105,7 +105,7 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATOND</h1>
+    <h1>FOTOMARATONO</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
@@ -575,10 +575,38 @@
       }
     })();
 
-    document.addEventListener("visibilitychange", () => {
+document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") {
     if (timerStarted) {
-      startMainTick(); // kickar igång intervallet igen
+      // Huvudtimer
+      startMainTick();
+
+      // Om vi är i pausläge → räkna om direkt
+      if (localStorage.getItem(LS.pauseStart)) {
+        const pauseStartMs = getNum(LS.pauseStart);
+        const remainingMainAtPause = computeRemainingAt(pauseStartMs);
+        timerDisplay.innerText = formatTime(remainingMainAtPause);
+
+        const elapsed = getNow() - pauseStartMs;
+        let remaining = Math.max(0, Math.ceil((pauseDuration - elapsed) / 1000));
+        pauseTimerDisplay.innerText = remaining > 0 ? ("Paus " + formatTime(remaining)) : '';
+
+        clearInterval(pauseTimer);
+        if (remaining > 0) {
+          pauseTimer = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+              clearInterval(pauseTimer);
+              pauseTimerDisplay.innerText = '';
+              endPauseAndResume();
+            } else {
+              pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
+            }
+          }, 1000);
+        } else {
+          endPauseAndResume();
+        }
+      }
     }
   }
 });
