@@ -362,27 +362,45 @@
         const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
         let remainingSec = Math.ceil((getCurrentTotalDurationMs() - elapsed) / 1000);
 
-        if (remainingSec <= 0) {
-          remainingSec = 0;
-          clearInterval(mainTimer);
+if (remainingSec <= 0) {
+  remainingSec = 0;
+  clearInterval(mainTimer);
 
-          if (!localStorage.getItem(LS.doneWarned)) {
-            localStorage.setItem(LS.doneWarned, '1');
-            const endMsg = document.getElementById("endMessage");
-            endMsg.textContent = "🏁 Tävlingen är avslutad 🏆";
-            endMsg.style.display = "block";
+  if (!localStorage.getItem(LS.doneWarned)) {
+    localStorage.setItem(LS.doneWarned, '1');
+    const endMsg = document.getElementById("endMessage");
+    endMsg.textContent = "🏁 Tävlingen är avslutad 🏆";
+    endMsg.style.display = "block";
 
-            const endMusic = document.getElementById("endMusic");
-            if (endMusic) {
-              try {
-                endMusic.currentTime = 0;
-                const p = endMusic.play();
-                if (p && typeof p.then === 'function') {
-                  p.catch(() => {});
-                }
-              } catch(e) {}
-            }
-          }
+    const endMusic = document.getElementById("endMusic");
+    if (endMusic) {
+      try {
+        endMusic.currentTime = 0;
+        const p = endMusic.play();
+        if (p && typeof p.then === 'function') {
+          p.catch(() => {});
+        }
+      } catch(e) {}
+    }
+  }
+
+  clr(LS.pauseStart);
+  clr(LS.pausedOnce);
+  preventReload(false);
+  pauseBtn.disabled = false;
+  pauseBtn.style.backgroundColor = "#4CAF50";
+  timerStarted = false;
+  timerDisplay.innerText = formatTime(0);
+
+  const warn = document.getElementById("warningMessage");
+  if (warn) warn.style.display = "none";
+
+  // 🚨 GÖR SÅ ATT "NY SLUTTID" FÖRSVINNER
+  if (newEndLabel) newEndLabel.style.display = "none";
+
+  return;
+}
+
 
           clr(LS.pauseStart);
           clr(LS.pausedOnce);
