@@ -105,7 +105,7 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATONz</h1>
+    <h1>FOTOMARATONK</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
@@ -143,6 +143,7 @@
   <audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
   <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
   <audio id="endMusic" src="endmusic.mp3" preload="metadata"></audio>
+  <audio id="alarm2Sound" src="Alarm2.mp3" preload="metadata"></audio>
 
   <script>
     // ---- Konfig ----
@@ -312,18 +313,43 @@
       return Math.max(0, Math.ceil((effectiveTotal - elapsedAtTs) / 1000));
     }
 
-    function maybeApplyReduction() {
-      if (hasReduction()) return;
-      const timerStart = getNum(LS.timerStart);
-      if (!timerStart) return;
-      const totalPaused = getNum(LS.totalPaused);
-      const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
+ //   function maybeApplyReduction() {
+ //     if (hasReduction()) return;
+  //    const timerStart = getNum(LS.timerStart);
+  //    if (!timerStart) return;
+  //    const totalPaused = getNum(LS.totalPaused);
+  //    const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
 
-      if (elapsed >= REDUCE_AFTER_MIN * 60 * 1000) {
-        localStorage.setItem(LS.reductionApplied, '1');
-        if (newEndLabel) newEndLabel.style.display = 'block';
-      }
+ //     if (elapsed >= REDUCE_AFTER_MIN * 60 * 1000) {
+ //       localStorage.setItem(LS.reductionApplied, '1');
+ //       if (newEndLabel) newEndLabel.style.display = 'block';
+//      }
+//    }
+
+    function maybeApplyReduction() {
+  if (hasReduction()) return;
+  const timerStart = getNum(LS.timerStart);
+  if (!timerStart) return;
+  const totalPaused = getNum(LS.totalPaused);
+  const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
+
+  if (elapsed >= REDUCE_AFTER_MIN * 60 * 1000) {
+    localStorage.setItem(LS.reductionApplied, '1');
+    if (newEndLabel) newEndLabel.style.display = 'block';
+
+    // 🔔 Spela upp Alarm2
+    const alarm2 = document.getElementById("alarm2Sound");
+    if (alarm2) {
+      try {
+        alarm2.currentTime = 0;
+        const p = alarm2.play();
+        if (p && typeof p.then === "function") {
+          p.catch(() => {});
+        }
+      } catch(e) {}
     }
+  }
+}
 
     // ---- Huvudtimer ----
     function startMainTick() {
