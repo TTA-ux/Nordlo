@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FOTOMARATON</title>
+  <title>FOTOMARATONd</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -574,6 +574,14 @@
         pauseBtn.style.backgroundColor = "#888";
       }
     })();
+
+    document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    if (timerStarted) {
+      startMainTick(); // kickar igång intervallet igen
+    }
+  }
+});
   </script>
 </body>
 </html>
