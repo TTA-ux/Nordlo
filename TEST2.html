@@ -40,7 +40,7 @@
       <p>- Alla i laget ska synas på alla bilderna.</p>
       <p>- En person måste alltid utföra samma sak på alla bilder.</p>
       <p>- Laget ska lämna in minst 15 bilder.</p>
-      <p>- Laget måste vara tillbaka exakt 75 minuter efter startsignalen.</p>
+      <p>- Laget måste vara tillbaka exakt 90 minuter efter startsignalen.</p>
       <p>- HÅLL TIDEN!.</p>
     </div>
 
@@ -110,7 +110,7 @@
         let remainingSec = Math.ceil((totalDuration - elapsed)/1000);
 
         // 🔹 Efter 20 minuter -> dra bort 15 min och visa varning i 1 min
-        if (elapsed >= 20*60*1000 && localStorage.getItem(LS.reducedOnce) !== 'true') {
+        if (elapsed >= 1*60*1000 && localStorage.getItem(LS.reducedOnce) !== 'true') {
           localStorage.setItem(LS.reducedOnce,'true');
           setNum(LS.timerStart, timerStart + 15*60*1000); 
           remainingSec -= 15*60; 
