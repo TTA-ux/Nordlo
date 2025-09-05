@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOTOMARATON</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f9; margin:0; padding:0; }
+    .logo { width: 100%; display: block; cursor:pointer; }
+    .container { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 10px; }
+    h1 { text-align: center; margin: 5px 0; }
+    h2 { text-align: center; margin: 5px 0; }
+    .instructions { background: #eef; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+    .rules-title { text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 10px 0; display: flex; align-items: center; }
+    input[type="checkbox"] { transform: scale(1.5); margin-right: 12px; }
+    label { font-size: 16px; }
+    #timerDisplay, #pauseTimerDisplay { font-size: 24px; font-weight: bold; margin: 5px; text-align:center; }
+    #checklistProgress { margin-top: 10px; font-size: 16px; }
+    button { padding: 8px 16px; font-size: 16px; margin: 5px; border: none; border-radius: 6px; color: white; cursor: pointer; }
+    #startTimerBtn { background-color: #4CAF50; }
+    #pauseBtn { background-color: #888; }
+    #resetTimerBtn { background-color: #f44336; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    #pauseTimerDisplay { color: red; }
+    #shortenMessage { display:none; text-align:center; font-size:22px; font-weight:bold; color:red; margin-top:10px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
+
+  <div class="container">
+    <h1>FOTOMARATON</h1>
+    <h2>Lloret de Mar 2025</h2>
+
+    <div class="instructions">
+      <div class="rules-title">REGLER</div>
+      <p>- Alla i laget ska synas på alla bilderna.</p>
+      <p>- En person måste alltid utföra samma sak på alla bilder.</p>
+      <p>- Laget ska lämna in minst 15 bilder.</p>
+      <p>- Laget måste vara tillbaka exakt 75 minuter efter startsignalen.</p>
+      <p>- HÅLL TIDEN!.</p>
+    </div>
+
+    <div style="text-align:center; margin-bottom: 20px;">
+      <div id="timerDisplay"></div>
+      <div id="warningMessage" style="display:none; text-align:center; font-size:28px; font-weight:bold; color:red; margin-top:10px;">
+        ⏰ Mindre än 5 minuter kvar – skynda er!
+      </div>
+      <div id="shortenMessage">⚠️ Tiden har kortats – ny sluttid gäller! ⚠️</div>
+      <div id="endMessage" style="display:none; text-align:center; font-size:20px; font-weight:bold; color:red; margin-top:15px;">
+        Tävlingen är avslutad!
+      </div>
+      <div id="pauseTimerDisplay"></div>
+      <div id="checklistProgress">0% slutfört</div>
+      <button id="startTimerBtn">Starta tävlingen 🏁</button>
+      <button id="pauseBtn" disabled>Pausa 10 min 💤</button>
+      <button id="resetTimerBtn">Förläng tiden ⏱️</button>
+    </div>
+
+    <ul id="checklist" style="display:none;"></ul>
+  </div>
+
+  <audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
+  <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
+  <audio id="endMusic" src="endmusic.mp3" preload="metadata"></audio>
+
+  <script>
+    const TOTAL_MINUTES = 90;          
+    const PAUSE_MINUTES = 10;
+
+    const timerDisplay = document.getElementById('timerDisplay');
+    const pauseTimerDisplay = document.getElementById('pauseTimerDisplay');
+    const startBtn = document.getElementById('startTimerBtn');
+    const resetBtn = document.getElementById('resetTimerBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const logoBtn = document.getElementById('logoBtn');
+    const shortenMessage = document.getElementById("shortenMessage");
+
+    const totalDuration = TOTAL_MINUTES * 60 * 1000;
+    const pauseDuration = PAUSE_MINUTES * 60 * 1000;
+    let mainTimer = null;
+    let pauseTimer = null;
+    let timerStarted = false;
+    let pausedOnce = false;
+
+    const LS = {
+      timerStart: 'timerStart',
+      totalPaused: 'totalPaused',
+      pauseStart: 'pauseStart',
+      pausedOnce: 'pausedOnce',
+      reducedOnce: 'reducedOnce',
+      doneWarned: 'doneWarned'
+    };
+
+    function getNum(key){ return Number(localStorage.getItem(key) || 0); }
+    function setNum(key,val){ localStorage.setItem(key,String(val)); }
+    function clr(key){ localStorage.removeItem(key); }
+    function formatTime(seconds){ const m=Math.floor(seconds/60), s=seconds%60; return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
+    function getNow(){ return Date.now(); }
+
+    function startMainTick(){
+      clearInterval(mainTimer);
+      mainTimer = setInterval(()=>{
+        const timerStart = getNum(LS.timerStart);
+        const totalPaused = getNum(LS.totalPaused);
+        const elapsed = Math.max(0, getNow() - timerStart - totalPaused);
+        let remainingSec = Math.ceil((totalDuration - elapsed)/1000);
+
+        // 🔹 Efter 20 minuter -> dra bort 15 min och visa varning i 1 min
+        if (elapsed >= 20*60*1000 && localStorage.getItem(LS.reducedOnce) !== 'true') {
+          localStorage.setItem(LS.reducedOnce,'true');
+          setNum(LS.timerStart, timerStart + 15*60*1000); 
+          remainingSec -= 15*60; 
+
+          shortenMessage.style.display = "block";
+          setTimeout(()=>{ shortenMessage.style.display="none"; }, 60*1000);
+        }
+
+        if(remainingSec <= 0){
+          clearInterval(mainTimer);
+          remainingSec = 0;
+          if(!localStorage.getItem(LS.doneWarned)){
+            localStorage.setItem(LS.doneWarned,'1');
+            document.getElementById("endMessage").style.display = "block";
+            const endMusic = document.getElementById("endMusic");
+            if (endMusic) { try { endMusic.currentTime = 0; endMusic.play().catch(()=>{});} catch(e) {} }
+          }
+          timerStarted = false;
+        }
+
+        if(remainingSec <= 5*60 && remainingSec > 0){
+          document.getElementById("warningMessage").style.display = "block";
+        } else {
+          document.getElementById("warningMessage").style.display = "none";
+        }
+
+        timerDisplay.innerText = formatTime(remainingSec);
+      }, 1000);
+    }
+
+    function startMain(){
+      if(timerStarted) return;
+      timerStarted = true;
+      document.getElementById("kazooSound").play();
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+
+      if(!localStorage.getItem(LS.timerStart)){
+        setNum(LS.timerStart, getNow());
+        setNum(LS.totalPaused, 0);
+        clr(LS.doneWarned);
+        localStorage.setItem(LS.reducedOnce,'false');
+      }
+
+      startMainTick();
+    }
+
+    startBtn.addEventListener('click', startMain);
+  </script>
+</body>
+</html>
