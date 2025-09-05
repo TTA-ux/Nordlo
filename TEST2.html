@@ -337,7 +337,7 @@
           if (!localStorage.getItem(LS.doneWarned)) {
             localStorage.setItem(LS.doneWarned, '1');
             const endMsg = document.getElementById("endMessage");
-            endMsg.textContent = "🏆 Tävlingen är avslutad 🏁";
+            endMsg.textContent = "🏁 Tävlingen är avslutad 🏆";
             endMsg.style.display = "block";
 
             const endMusic = document.getElementById("endMusic");
@@ -409,7 +409,7 @@
       if (localStorage.getItem(LS.pauseStart)) return;
       if (localStorage.getItem(LS.pausedOnce) === 'true') return;
 
-      if (!confirm("🚨⚠️VARNING!⚠️🚨\n\nDenna paus går att använda EN gång!\n\nÄr du säker?")) return;
+      if (!confirm("🚨⚠️VARNING!⚠️🚨\n\nDenna paus går att använda endast EN gång!\n\nÄr du säker att du vill pausa nu?")) return;
 
       localStorage.setItem(LS.pausedOnce, 'true');
       pausedOnce = true;
@@ -459,7 +459,7 @@
       const alarm = document.getElementById("alarmSound");
       alarm.play();
       setTimeout(() => {
-        alert("🚨APP-APP-APP!🚨\n\nNi har tryckt på en förbjuden knapp!⚠️\n\nEtt meddelande om fusk har skickats till ledningsgruppen!");
+        alert("🚨APP-APP-APP!🚨\n\nNi har tryckt på en förbjuden knapp!⚠️\n\nEtt meddelande om fusk har skickats till ledningsgruppen!📧");
       }, 200);
     });
 
