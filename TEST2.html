@@ -402,17 +402,17 @@ if (remainingSec <= 0) {
 }
 
 
-          clr(LS.pauseStart);
-          clr(LS.pausedOnce);
-          preventReload(false);
-          pauseBtn.disabled = false;
-          pauseBtn.style.backgroundColor = "#4CAF50";
-          timerStarted = false;
-          timerDisplay.innerText = formatTime(0);
+         // clr(LS.pauseStart);
+         // clr(LS.pausedOnce);
+        //  preventReload(false);
+       //   pauseBtn.disabled = false;
+       //   pauseBtn.style.backgroundColor = "#4CAF50";
+      //    timerStarted = false;
+      //    timerDisplay.innerText = formatTime(0);
 
-          const warn = document.getElementById("warningMessage");
-          if (warn) warn.style.display = "none";
-          return;
+     //     const warn = document.getElementById("warningMessage");
+    //      if (warn) warn.style.display = "none";
+     //     return;
         }
 
         if (remainingSec <= 5*60 && remainingSec > 0) {
