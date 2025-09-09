@@ -31,7 +31,7 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATON1</h1>
+    <h1>FOTOMARATON2</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
@@ -198,14 +198,15 @@ function startMainTick() {
     let remainingSec = Math.ceil((totalDuration - elapsed) / 1000);
 
     // 🔴 Efter 1 minut -> dra av 15 min & visa meddelande
-    if (elapsed >= 1 * 60 * 1000 && !adjustedOnce) { 
+    if (elapsed >= 0.1 * 60 * 1000 && !adjustedOnce) { 
       adjustedOnce = true;
       setNum('adjustedOnce', 1); // permanent sparning
 
-      const remaining = computeRemainingAt(getNow());
-      const reduced = Math.max(0, remaining - 15 * 60); // dra av 15 min
-      const newTimerStart = getNow() - ((totalDuration - reduced) * 1000);
-      setNum(LS.timerStart, newTimerStart);
+    let remaining = computeRemainingAt(getNow()); // i sekunder
+    remaining -= 15 * 60; // dra av 15 min
+    remaining = Math.max(0, remaining);
+    const newTimerStart = getNow() - ((totalDuration - remaining) * 1000);
+    setNum(LS.timerStart, newTimerStart);
 
       const msg = document.getElementById("newEndMessage");
       if (msg) msg.style.display = "block";
