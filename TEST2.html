@@ -31,7 +31,7 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATON4</h1>
+    <h1>FOTOMARATON5</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
@@ -188,34 +188,32 @@
 function startMainTick() {
   clearInterval(mainTimer);
 
+  // Permanent flagga för avdrag
   let adjustedOnce = getNum('adjustedOnce') === 1;
 
+  const timerStart = getNum(LS.timerStart) || getNow();
+  setNum(LS.timerStart, timerStart);
+
   mainTimer = setInterval(() => {
-    const timerStart = getNum(LS.timerStart);
-    const totalPaused = getNum(LS.totalPaused);
-    const now = getNow();
-    const elapsed = Math.max(0, now - timerStart - totalPaused);
+    const totalPaused = getNum(LS.totalPaused) || 0;
+    const elapsed = Math.max(0, getNow() - timerStart - totalPaused); // i ms
     let remainingSec = Math.ceil((totalDuration - elapsed) / 1000);
 
     // 🔴 Efter 1 minut -> dra av 15 min & visa meddelande
     if (elapsed >= 60 * 1000 && !adjustedOnce) {
       adjustedOnce = true;
-      setNum('adjustedOnce', 1); // permanent sparning
+      setNum('adjustedOnce', 1);
 
-      // Beräkna återstående tid och dra av 15 minuter
-      let remaining = computeRemainingAt(now); // i sekunder
-      remaining -= 15 * 60; // 15 minuter
-      remaining = Math.max(0, remaining);
-
-      // Justera timerStart så att nedräkningen stämmer
-      const newTimerStart = now - ((totalDuration - remaining) * 1000);
+      // Dra av 15 minuter
+      remainingSec = Math.max(0, remainingSec - 15 * 60);
+      const newTimerStart = getNow() - ((totalDuration - remainingSec) * 1000);
       setNum(LS.timerStart, newTimerStart);
 
-      // Visa meddelande
       const msg = document.getElementById("newEndMessage");
       if (msg) msg.style.display = "block";
     }
 
+    // 🔴 När tiden är slut
     if (remainingSec <= 0) {
       clearInterval(mainTimer);
       remainingSec = 0;
@@ -230,7 +228,11 @@ function startMainTick() {
 
         const endMusic = document.getElementById("endMusic");
         if (endMusic) {
-          try { endMusic.currentTime = 0; endMusic.play().catch(()=>{}); } catch {}
+          try {
+            endMusic.currentTime = 0;
+            const p = endMusic.play();
+            if (p && typeof p.then === 'function') p.catch(() => {});
+          } catch (e) {}
         }
       }
 
@@ -240,19 +242,28 @@ function startMainTick() {
       pauseBtn.disabled = false;
       pauseBtn.style.backgroundColor = "#4CAF50";
       timerStarted = false;
-      timerDisplay.innerText = formatTime(0);
 
       const warn = document.getElementById("warningMessage");
       if (warn) warn.style.display = "none";
+
+      timerDisplay.innerText = formatTime(0);
       return;
     }
 
+    // 🔴 Visa varning vid sista 5 minuterna
     const warn = document.getElementById("warningMessage");
-    if (warn) warn.style.display = remainingSec <= 5 * 60 && remainingSec > 0 ? "block" : "none";
+    if (remainingSec <= 5 * 60 && remainingSec > 0) {
+      if (warn) warn.style.display = "block";
+    } else {
+      if (warn) warn.style.display = "none";
+    }
 
+    // Uppdatera timer-display
     timerDisplay.innerText = formatTime(remainingSec);
+
   }, 1000);
 }
+
 
     // ---- Start ----
     function startMain(){
