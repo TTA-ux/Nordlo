@@ -198,7 +198,7 @@ function startMainTick() {
     let remainingSec = Math.ceil((totalDuration - elapsed) / 1000);
 
     // 🔴 Efter 1 minut -> dra av 15 min & visa meddelande
-    if (elapsed >= 0.1 * 60 * 1000 && !adjustedOnce) { 
+    if (elapsed >= 1 * 60 * 1000 && !adjustedOnce) { 
       adjustedOnce = true;
       setNum('adjustedOnce', 1); // permanent sparning
 
