@@ -31,7 +31,7 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATON3</h1>
+    <h1>FOTOMARATON4</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
@@ -194,26 +194,28 @@ function startMainTick() {
     const timerStart = getNum(LS.timerStart);
     const totalPaused = getNum(LS.totalPaused);
     const now = getNow();
-
     const elapsed = Math.max(0, now - timerStart - totalPaused);
     let remainingSec = Math.ceil((totalDuration - elapsed) / 1000);
 
-    // 🔴 Efter 1 minut -> dra av 15 min
-    if (!adjustedOnce && elapsed >= 60 * 1000) {
+    // 🔴 Efter 1 minut -> dra av 15 min & visa meddelande
+    if (elapsed >= 60 * 1000 && !adjustedOnce) {
       adjustedOnce = true;
-      setNum('adjustedOnce', 1);
+      setNum('adjustedOnce', 1); // permanent sparning
 
-      let remaining = computeRemainingAt(now) - 15 * 60;
+      // Beräkna återstående tid och dra av 15 minuter
+      let remaining = computeRemainingAt(now); // i sekunder
+      remaining -= 15 * 60; // 15 minuter
       remaining = Math.max(0, remaining);
 
-      // Justera timerStart så att återstående tid stämmer
-      setNum(LS.timerStart, now - ((totalDuration - remaining) * 1000));
+      // Justera timerStart så att nedräkningen stämmer
+      const newTimerStart = now - ((totalDuration - remaining) * 1000);
+      setNum(LS.timerStart, newTimerStart);
 
+      // Visa meddelande
       const msg = document.getElementById("newEndMessage");
       if (msg) msg.style.display = "block";
     }
 
-    // Timer är slut
     if (remainingSec <= 0) {
       clearInterval(mainTimer);
       remainingSec = 0;
@@ -228,11 +230,7 @@ function startMainTick() {
 
         const endMusic = document.getElementById("endMusic");
         if (endMusic) {
-          try {
-            endMusic.currentTime = 0;
-            const p = endMusic.play();
-            if (p?.then) p.catch(() => {});
-          } catch {}
+          try { endMusic.currentTime = 0; endMusic.play().catch(()=>{}); } catch {}
         }
       }
 
@@ -242,16 +240,15 @@ function startMainTick() {
       pauseBtn.disabled = false;
       pauseBtn.style.backgroundColor = "#4CAF50";
       timerStarted = false;
-
       timerDisplay.innerText = formatTime(0);
+
       const warn = document.getElementById("warningMessage");
       if (warn) warn.style.display = "none";
       return;
     }
 
-    // Visa varning när < 5 minuter kvar
     const warn = document.getElementById("warningMessage");
-    if (warn) warn.style.display = remainingSec <= 5 * 60 ? "block" : "none";
+    if (warn) warn.style.display = remainingSec <= 5 * 60 && remainingSec > 0 ? "block" : "none";
 
     timerDisplay.innerText = formatTime(remainingSec);
   }, 1000);
