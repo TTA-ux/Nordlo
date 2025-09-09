@@ -194,12 +194,14 @@
         let remainingSec = Math.ceil((totalDuration - elapsed)/1000);
 
         // 🔴 Efter 10 minuter -> dra av 15 min & visa meddelande
-        if (elapsed >= 1 * 60 * 1000 && !adjustedOnce) {
-          adjustedOnce = true;
-          const newStart = timerStart + (15 * 60 * 1000);
-          setNum(LS.timerStart, newStart);
-          document.getElementById("newEndMessage").style.display = "block";
-        }
+if (elapsed >= 1 * 60 * 1000 && !adjustedOnce) { // byt x till antalet minuter efter vilket avdrag ska ske
+  adjustedOnce = true;
+  const remaining = computeRemainingAt(getNow());
+  const reduced = Math.max(0, remaining - 15 * 60); // dra av 15 min
+  const newTimerStart = getNow() - ((totalDuration - reduced) * 1000);
+  setNum(LS.timerStart, newTimerStart);
+  document.getElementById("newEndMessage").style.display = "block";
+}
 
         if(remainingSec <= 0){
           remainingSec = 0;
