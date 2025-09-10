@@ -31,7 +31,7 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATON6</h1>
+    <h1>FOTOMARATON8</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
@@ -215,7 +215,7 @@
         let remainingSec = Math.max(0, Math.ceil((totalDuration / 1000) - elapsed + adjustmentSec));
 
         // Efter 1 minut -> dra av 15 min
-        if (elapsed >= 60 && !adjustedOnce) {
+        if (elapsed >= 10 && !adjustedOnce) {
           adjustedOnce = true;
           localStorage.setItem(LS.adjustedOnce, 'true');
           adjustmentSec -= 15 * 60; 
