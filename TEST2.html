@@ -31,7 +31,7 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATON2</h1>
+    <h1>FOTOMARATON3</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
@@ -247,9 +247,11 @@ function startMain(){
   const endMusic = document.getElementById("endMusic");
 
   // 👇 Förladda och "avspela tyst" endmusic
+  endMusic.volume = 0;
   endMusic.play().then(() => {
     endMusic.pause();
     endMusic.currentTime = 0;
+    endMusic.volume = 1;
   }).catch(e => {
     console.warn("Endmusic kunde inte förladdas:", e);
   });
