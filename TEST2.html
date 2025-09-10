@@ -31,7 +31,7 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATON3</h1>
+    <h1>FOTOMARATONF</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
@@ -39,7 +39,7 @@
       <p>- En får vara fotograf, övriga ska synas på bilden.</p>
       <p>- En person måste alltid utföra samma sak på alla bilder.</p>
       <p>- Laget ska lämna in minst 15 bilder.</p>
-      <p>- Uppgifter med * = ALLA SKA VARA MED PÅ BILDEN!</p>
+      <p>- * = ALLA SKA VARA MED PÅ BILDEN!</p>
       <p>- Laget måste vara tillbaka exakt 90 minuter efter startsignalen.</p>
       <p>- HÅLL TIDEN!.</p>
     </div>
@@ -71,8 +71,8 @@
 
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 30;          
-    const PAUSE_MINUTES = 1;
+    const TOTAL_MINUTES = 90;          
+    const PAUSE_MINUTES = 10;
 
     // ---- Element ----
     const checklist = document.getElementById('checklist');
@@ -129,15 +129,18 @@
       'Alla är vända bort från kameran', 
       'Ta en gruppbild med en katt/hund/valfritt djur', 
       '*Peta på en motorcykel. En ska se glad ut, alla andra förskräckta', 
-      '*Ramla! (roliga gatan fram)', 
-      '*Ha en livlig argumentation', 
+      '*Ramla! (roliga gatan fram..)🥳', 
+      '*Ha en livlig argumentation 🤌😡', 
+      'Nån i laget fyller år!! 🎂🎈🎉🎁',
       'Spela fotboll ⚽', 
-      '*Men hur gullig du vara egentligen?',
+      '*Men hur gullig kan du vara egentligen?',
+      '*Gympass! 🏋️🤸‍♂️',
       'Ät nåt litet, men gapa som att det är nåt jättestort', 
-      'Gå vilse!',
+      'Gå vilse! 🗺️',
       '*Återskapa skivomslaget till Beatles - Abbey road🎵', 
-      '*Skapa oreda!',
+      '*Skapa oreda!🌪️',
       '*Åk rutchkana! 🛝',
+      '*Var spanjorer!',
       'Tugga tuggummi och blås en stor bubbla', 
       'En glad sockerbagare 🧑‍🍳', 
       'Fiska fisk! 🐟"',
@@ -314,7 +317,7 @@ function startPauseTick(){
     resetBtn.addEventListener('click', () => {
       document.getElementById("alarmSound").play();
       setTimeout(() => {
-        alert("🚨APP-APP-APP!🚨\n\nNi har tryckt på en förbjuden knapp!⚠️\n\nEtt meddelande om fusk har skickats till ledningsgruppen!");
+        alert("🚨APP-APP-APP!🚨\n\nNi har tryckt på en förbjuden knapp!⚠️\n\nEtt meddelande om fusk har skickats till ledningsgruppen!!");
       }, 200);
     });
 
