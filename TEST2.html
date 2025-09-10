@@ -31,12 +31,12 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATONB</h1>
+    <h1>FOTOMARATON1</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
       <div class="rules-title">REGLER</div>
-      <p>- En får vara fotograf, övriga ska synas på bilden.</p>
+      <p>- En får vara fotograf, övriga ska synas på bilderna.</p>
       <p>- En person måste alltid utföra samma sak på alla bilder.</p>
       <p>- Laget ska lämna in minst 15 bilder.</p>
       <p>- * = ALLA SKA VARA MED PÅ BILDEN!</p>
@@ -50,7 +50,7 @@
         ⏰ Mindre än 5 minuter kvar – SKYNDA ER!
       </div>
       <div id="endMessage" style="display:none; text-align:center; font-size:22px; font-weight:bold; color:red; margin-top:15px;">
-        🏁 Tävlingen är avslutad! 🏁
+        🏁 TÄVLINGEN ÄR AVSLUTAD! 🏁
       </div>
       <!-- NY SLUTTID-MEDDELANDE -->
       <div id="newEndMessage" style="display:none; text-align:center; font-size:22px; font-weight:bold; color:red; margin-top:10px;">
@@ -71,7 +71,7 @@
 
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 90;          
+    const TOTAL_MINUTES = 6;          
     const PAUSE_MINUTES = 10;
 
     // ---- Element ----
@@ -214,7 +214,7 @@
         let remainingSec = Math.max(0, Math.ceil((totalDuration / 1000) - elapsed + adjustmentSec));
 
         // Efter 1 minut -> dra av 15 min
-        if (elapsed >= 10 && !adjustedOnce) {
+        if (elapsed >= 15 && !adjustedOnce) {
           adjustedOnce = true;
           localStorage.setItem(LS.adjustedOnce, 'true');
           adjustmentSec -= 15 * 60; 
