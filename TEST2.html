@@ -31,7 +31,7 @@
   <img src="NORDLO.png" alt="Logo" class="logo" id="logoBtn">
 
   <div class="container">
-    <h1>FOTOMARATON6</h1>
+    <h1>FOTOMARATON7</h1>
     <h2>Lloret de Mar 2025</h2>
 
     <div class="instructions">
@@ -91,37 +91,54 @@
     let pauseTimer = null;
     let timerStarted = false;
     let pausedOnce = false;
-    let adjustedOnce = false; // <-- NY flagga för att dra av 15 minuter
+
+    // Nytt för avdrag
+    let adjustedOnce = false;
+    let adjustmentSec = 0; 
+
+    // ---- LocalStorage keys ----
+    const LS = {
+      timerStart: 'timerStart',
+      totalPaused: 'totalPaused',
+      pauseStart: 'pauseStart',
+      pausedOnce: 'pausedOnce',
+      adjustedOnce: 'adjustedOnce',
+      adjustmentSec: 'adjustmentSec'
+    };
+    function getNum(key){ return Number(localStorage.getItem(key) || 0); }
+    function setNum(key,val){ localStorage.setItem(key,String(val)); }
+    function clr(key){ localStorage.removeItem(key); }
 
     // ---- Checklista ----
-      const items = [
-      'En gruppbild i det minsta utrymmet ni får plats i', 
-'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)', 
-'En oväntad vänskap...!', 
-'Alla i laget gör samma sak (tex Alla i luften, alla på huk, "walk like an egyptian...")', 
-'En “olycka” på semestern😱', 
-'Tema "Havet"',
- 'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.', 
-'Skriv NORDLO i sanden på stranden och ta en gruppbild❤️', 
-'Kläm ihop nåt jättestort', 
-'Det minsta och största ni hittar som ryms i en hand', 
-'Gör honnör framför en fontän!', 
-'Asgarva! 🤣🤣🤣',
-'Krama en palm!', 
-'Gör tummen upp framför Iglesia de San Román', 
-'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet', 
-'Alla är vända bort från kameran', 
-'Ta en gruppbild med en katt/hund/valfritt djur', 
-'Peta på en motorcykel. En ska se glad ut, alla andra förskräckta', 
-'Ramla! (roliga gatan fram)', 
-'Ha en livlig argumentation', 
-'Spela fotboll', 
-'Ät nåt litet, men gapa som att det är nåt jättestort', 
-'Återskapa skivomslaget till Beatles - Abbey road🎵', 
-'Tugga tuggummi och blås en stor bubbla', 
-'En glad sockerbagare 🧑‍🍳',
-'Leta upp en udda hatt och ta en bild med den🎩'
+    const items = [
+     'En gruppbild i det minsta utrymmet ni får plats i', 
+      'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)', 
+      'En oväntad vänskap...!', 
+      'Alla i laget gör samma sak (tex Alla i luften, alla på huk, "walk like an egyptian...")', 
+      'En “olycka” på semestern😱', 
+      'Tema "Havet"', 
+      'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.', 
+      'Skriv NORDLO i sanden på stranden och ta en gruppbild❤️', 
+      'Kläm ihop nåt jättestort', 
+      'Det minsta och största ni hittar som ryms i en hand', 
+      'Gör honnör framför en fontän!', 
+      'Asgarva! 🤣🤣🤣', 
+      'Krama en palm!', 
+      'Gör tummen upp framför Iglesia de San Román', 
+      'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet', 
+      'Alla är vända bort från kameran', 
+      'Ta en gruppbild med en katt/hund/valfritt djur', 
+      'Peta på en motorcykel. En ska se glad ut, alla andra förskräckta', 
+      'Ramla! (roliga gatan fram)', 
+      'Ha en livlig argumentation', 
+      'Spela fotboll', 
+      'Ät nåt litet, men gapa som att det är nåt jättestort', 
+      'Återskapa skivomslaget till Beatles - Abbey road🎵', 
+      'Tugga tuggummi och blås en stor bubbla', 
+      'En glad sockerbagare 🧑‍🍳', 
+      'Leta upp en udda hatt och ta en bild med den🎩'
     ];
+    
 
     items.forEach((item,index)=>{
       const li = document.createElement('li');
@@ -165,83 +182,40 @@
     function showChecklist(show){ checklist.style.display = show ? 'block' : 'none'; }
     function getNow(){ return Date.now(); }
 
-    function computeRemainingAt(tsMs){
-      const timerStart = getNum(LS.timerStart);
-      const totalPaused = getNum(LS.totalPaused);
-      const elapsedAtTs = Math.max(0, tsMs - timerStart - totalPaused);
-      return Math.max(0, Math.ceil((totalDuration - elapsedAtTs)/1000));
-    }
-
-    const LS = {
-      timerStart: 'timerStart',
-      totalPaused: 'totalPaused',
-      pauseStart: 'pauseStart',
-      pausedOnce: 'pausedOnce',
-      doneWarned: 'doneWarned'
-    };
-
-    function getNum(key){ return Number(localStorage.getItem(key) || 0); }
-    function setNum(key,val){ localStorage.setItem(key,String(val)); }
-    function clr(key){ localStorage.removeItem(key); }
-
     // ---- Huvudtimer ----
-function startMainTick() {
-  clearInterval(mainTimer);
-
-  // Flagga för att veta om avdrag gjorts
-  let adjustedOnce = localStorage.getItem('adjustedOnce') === '1';
-
-  const totalDurationMs = totalDuration; // totalDuration i millisekunder
-  let timerStart = localStorage.getItem('timerStart') ? parseInt(localStorage.getItem('timerStart')) : Date.now();
-  localStorage.setItem('timerStart', timerStart);
-
-  mainTimer = setInterval(() => {
-    const elapsed = Date.now() - timerStart; // i ms
-    let remainingSec = Math.ceil((totalDurationMs - elapsed) / 1000);
-
-    // 🔴 Efter 1 minut -> dra av 15 min
-    if (elapsed >= 60 * 1000 && !adjustedOnce) {
-      adjustedOnce = true;
-      localStorage.setItem('adjustedOnce', '1');
-
-      remainingSec = Math.max(0, remainingSec - 15 * 60); // dra av 15 minuter
-      timerStart = Date.now() - ((totalDurationMs - remainingSec * 1000)); // justera starttid
-      localStorage.setItem('timerStart', timerStart);
-
-      const msg = document.getElementById("newEndMessage");
-      if (msg) msg.style.display = "block";
-    }
-
-    // 🔴 När tiden är slut
-    if (remainingSec <= 0) {
+    function startMainTick() {
       clearInterval(mainTimer);
-      remainingSec = 0;
 
-      const endMsg = document.getElementById("endMessage");
-      if (endMsg) {
-        endMsg.textContent = "🏆 Tävlingen är avslutad 🏁";
-        endMsg.style.display = "block";
-      }
+      mainTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - getNum(LS.timerStart) - getNum(LS.totalPaused)) / 1000);
 
-      const endMusic = document.getElementById("endMusic");
-      if (endMusic) {
-        try { endMusic.currentTime = 0; endMusic.play().catch(()=>{}); } catch(e){}
-      }
+        // hämta adjustmentSec från LS varje tick
+        adjustmentSec = getNum(LS.adjustmentSec);
+        adjustedOnce = localStorage.getItem(LS.adjustedOnce) === 'true';
 
-      timerDisplay.innerText = formatTime(0);
-      return;
+        let remainingSec = Math.max(0, Math.ceil((totalDuration / 1000) - elapsed + adjustmentSec));
+
+        // Efter 1 minut -> dra av 15 min
+        if (elapsed >= 60 && !adjustedOnce) {
+          adjustedOnce = true;
+          localStorage.setItem(LS.adjustedOnce, 'true');
+          adjustmentSec -= 15 * 60; 
+          setNum(LS.adjustmentSec, adjustmentSec);
+          document.getElementById("newEndMessage").style.display = "block";
+        }
+
+        if (remainingSec <= 0) {
+          clearInterval(mainTimer);
+          remainingSec = 0;
+          document.getElementById("endMessage").style.display = "block";
+          try { document.getElementById("endMusic").play(); } catch(e){}
+        }
+
+        document.getElementById("warningMessage").style.display = (remainingSec <= 5 * 60) ? "block" : "none";
+
+        timerDisplay.innerText = formatTime(remainingSec);
+      }, 1000);
     }
-
-    // 🔴 Visa varning vid sista 5 minuterna
-    const warn = document.getElementById("warningMessage");
-    if (warn) warn.style.display = (remainingSec <= 5 * 60) ? "block" : "none";
-
-    // Uppdatera display
-    timerDisplay.innerText = formatTime(remainingSec);
-
-  }, 1000);
-}
-
 
     // ---- Start ----
     function startMain(){
@@ -259,7 +233,8 @@ function startMainTick() {
         setNum(LS.timerStart, getNow());
         setNum(LS.totalPaused, 0);
         clr(LS.pauseStart);
-        clr(LS.doneWarned);
+        clr(LS.adjustedOnce);
+        clr(LS.adjustmentSec);
       }
 
       pausedOnce = localStorage.getItem(LS.pausedOnce) === 'true';
@@ -279,15 +254,10 @@ function startMainTick() {
       pauseBtn.disabled = true;
       pauseBtn.style.backgroundColor = "#888";
       showChecklist(false);
-      preventReload(true);
 
       setNum(LS.pauseStart, getNow());
       clearInterval(mainTimer);
 
-      const remainingAtPause = computeRemainingAt(getNum(LS.pauseStart));
-      timerDisplay.innerText = formatTime(remainingAtPause);
-
-      clearInterval(pauseTimer);
       let remaining = Math.ceil(pauseDuration/1000);
       pauseTimerDisplay.innerText = "Paus " + formatTime(remaining);
       pauseTimer = setInterval(()=>{
@@ -312,7 +282,6 @@ function startMainTick() {
       clr(LS.pauseStart);
       showChecklist(true);
       startMainTick();
-      preventReload(true);
     }
 
     // ---- Knappar ----
@@ -320,8 +289,7 @@ function startMainTick() {
     pauseBtn.addEventListener('click', startPause);
 
     resetBtn.addEventListener('click', () => {
-      const alarm = document.getElementById("alarmSound");
-      alarm.play();
+      document.getElementById("alarmSound").play();
       setTimeout(() => {
         alert("🚨APP-APP-APP!🚨\n\nNi har tryckt på en förbjuden knapp!⚠️\n\nEtt meddelande om fusk har skickats till ledningsgruppen!");
       }, 200);
@@ -335,10 +303,12 @@ function startMainTick() {
       clr(LS.totalPaused);
       clr(LS.pauseStart);
       clr(LS.pausedOnce);
-      clr(LS.doneWarned);
+      clr(LS.adjustedOnce);
+      clr(LS.adjustmentSec);
       timerStarted = false;
       pausedOnce = false;
-      adjustedOnce = false; // återställ
+      adjustedOnce = false; 
+      adjustmentSec = 0;
       timerDisplay.innerText = formatTime(TOTAL_MINUTES*60);
       pauseTimerDisplay.innerText = '';
       showChecklist(false);
@@ -347,9 +317,8 @@ function startMainTick() {
       startBtn.style.backgroundColor = "#4CAF50";
       pauseBtn.disabled = true;
       pauseBtn.style.backgroundColor = "#888";
-      document.getElementById("newEndMessage").style.display = "none"; // göm texten vid reset
-      const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach(cb=>{
+      document.getElementById("newEndMessage").style.display = "none"; 
+      checklist.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
         cb.checked = false;
         localStorage.setItem(cb.id, 'false');
       });
@@ -364,34 +333,17 @@ function startMainTick() {
         startBtn.style.backgroundColor = "#888";
         pauseBtn.disabled = localStorage.getItem(LS.pausedOnce)==='true';
         pauseBtn.style.backgroundColor = pauseBtn.disabled ? "#888" : "#4CAF50";
-        const inPause = !!localStorage.getItem(LS.pauseStart);
-        showChecklist(!inPause);
+        showChecklist(true);
         preventReload(true);
-        if(inPause){
-          const pauseStartMs = getNum(LS.pauseStart);
-          const remainingMainAtPause = computeRemainingAt(pauseStartMs);
-          timerDisplay.innerText = formatTime(remainingMainAtPause);
-          const elapsed = getNow() - pauseStartMs;
-          let remaining = Math.max(0, Math.ceil((pauseDuration - elapsed)/1000));
-          pauseTimerDisplay.innerText = remaining>0 ? ("Paus " + formatTime(remaining)) : '';
-          clearInterval(pauseTimer);
-          if(remaining>0){
-            pauseTimer = setInterval(()=>{
-              remaining--;
-              if(remaining<=0){
-                clearInterval(pauseTimer);
-                pauseTimerDisplay.innerText='';
-                endPauseAndResume();
-              }else{
-                pauseTimerDisplay.innerText="Paus " + formatTime(remaining);
-              }
-            },1000);
-          }else{
-            endPauseAndResume();
-          }
-        }else{
-          startMainTick();
+
+        // hämta tidigare justering
+        adjustmentSec = getNum(LS.adjustmentSec);
+        adjustedOnce = localStorage.getItem(LS.adjustedOnce) === 'true';
+        if(adjustedOnce){
+          document.getElementById("newEndMessage").style.display = "block";
         }
+
+        startMainTick();
       }else{
         timerDisplay.innerText = formatTime(TOTAL_MINUTES*60);
         showChecklist(false);
