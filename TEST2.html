@@ -67,7 +67,7 @@
 
   <audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
   <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
-  <audio id="endMusic" src="endmusic.mp3" preload="auto"></audio>
+  
   
 
   <script>
@@ -227,7 +227,7 @@
           clearInterval(mainTimer);
           remainingSec = 0;
           document.getElementById("endMessage").style.display = "block";
-          try { document.getElementById("endMusic").play(); } catch(e){}
+          //try { document.getElementById("endMusic").play(); } catch(e){}
 
           document.getElementById("warningMessage").style.display = "none";
           document.getElementById("newEndMessage").style.display = "none";
@@ -246,20 +246,9 @@ function startMain(){
   if(timerStarted) return;
   timerStarted = true;
 
-  const endMusic = document.getElementById("endMusic");
+  //const endMusic = document.getElementById("endMusic");
 
   document.getElementById("kazooSound").play();
-  // 👇 vänta lite innan vi tyst laddar endMusic
-  setTimeout(() => {
-    endMusic.volume = 0;        // tyst
-    endMusic.play().then(() => {
-      endMusic.pause();
-      endMusic.currentTime = 0;
-      endMusic.volume = 1;      // återställ volym
-    }).catch(e => {
-      console.warn("Endmusic kunde inte förladdas:", e);
-    });
-  }, 900); // ~0.3 sek fördröjning
   
   
   startBtn.disabled = true;
