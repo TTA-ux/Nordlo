@@ -231,10 +231,10 @@
 
           document.getElementById("warningMessage").style.display = "none";
           document.getElementById("newEndMessage").style.display = "none";
-          document.getElementById("warningMessage").style.display = (remainingSec <= 5 * 60) ? "block" : "none";
+
         }
 
-        
+          document.getElementById("warningMessage").style.display = (remainingSec <= 5 * 60) ? "block" : "none";
 
         timerDisplay.innerText = formatTime(remainingSec);
       }, 1000);
