@@ -53,7 +53,7 @@
       </div>
       <!-- NY SLUTTID-MEDDELANDE -->
       <div id="newEndMessage" style="display:none; text-align:center; font-size:22px; font-weight:bold; color:red; margin-top:10px;">
-        OBS! NY SLUTTID!
+        ⏱️ OBS! NY SLUTTID!
       </div>
       <div id="pauseTimerDisplay"></div>
       <div id="checklistProgress">0% slutfört</div>
@@ -71,7 +71,7 @@
 
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 21;          
+    const TOTAL_MINUTES = 6;          
     const PAUSE_MINUTES = 1;
 
     // ---- Element ----
@@ -114,29 +114,29 @@
      'En gruppbild i det minsta utrymmet ni får plats i', 
       'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)', 
       'En oväntad vänskap...!', 
-      'Alla i laget gör samma sak (tex Alla i luften, alla på huk, "walk like an egyptian...")', 
+      '*Alla i laget gör samma sak (tex Alla i luften, alla på huk, "walk like an egyptian...")', 
       'En “olycka” på semestern😱', 
       'Tema "Havet"', 
       'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.', 
-      'Skriv NORDLO i sanden på stranden och ta en gruppbild❤️', 
+      '*Skriv NORDLO i sanden på stranden och ta en gruppbild❤️', 
       'Kläm ihop nåt jättestort', 
       'Det minsta och största ni hittar som ryms i en hand', 
-      'Gör honnör framför en fontän!', 
-      'Asgarva! 🤣🤣🤣', 
-      'Krama en palm!', 
-      'Gör tummen upp framför Iglesia de San Román', 
+      '*Gör honnör framför en fontän!', 
+      '*Asgarva! 🤣🤣🤣', 
+      'Krama en palm! 🌴', 
+      '*Gör tummen upp framför Iglesia de San Román', 
       'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet', 
       'Alla är vända bort från kameran', 
       'Ta en gruppbild med en katt/hund/valfritt djur', 
-      'Peta på en motorcykel. En ska se glad ut, alla andra förskräckta', 
-      'Ramla! (roliga gatan fram)', 
-      'Ha en livlig argumentation', 
+      '*Peta på en motorcykel. En ska se glad ut, alla andra förskräckta', 
+      '*Ramla! (roliga gatan fram)', 
+      '*Ha en livlig argumentation', 
       'Spela fotboll', 
       'Ät nåt litet, men gapa som att det är nåt jättestort', 
-      'Återskapa skivomslaget till Beatles - Abbey road🎵', 
+      '*Återskapa skivomslaget till Beatles - Abbey road🎵', 
       'Tugga tuggummi och blås en stor bubbla', 
       'En glad sockerbagare 🧑‍🍳', 
-      'Leta upp en udda hatt och ta en bild med den🎩'
+      '*Leta upp en udda hatt och ta en bild med den🎩'
     ];
     
 
@@ -209,6 +209,9 @@
           remainingSec = 0;
           document.getElementById("endMessage").style.display = "block";
           try { document.getElementById("endMusic").play(); } catch(e){}
+
+          document.getElementById("warningMessage").style.display = "none";
+          document.getElementById("newEndMessage").style.display = "none";
         }
 
         document.getElementById("warningMessage").style.display = (remainingSec <= 5 * 60) ? "block" : "none";
