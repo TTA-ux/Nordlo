@@ -68,6 +68,7 @@
   <audio id="kazooSound" src="Kazoo.mp3" preload="metadata"></audio>
   <audio id="alarmSound" src="Alarm.mp3" preload="metadata"></audio>
   <audio id="endMusic" src="endmusic.mp3" preload="auto"></audio>
+  
 
   <script>
     // ---- Konfig ----
@@ -246,17 +247,20 @@ function startMain(){
 
   const endMusic = document.getElementById("endMusic");
 
-  // 👇 Förladda och "avspela tyst" endmusic
-  endMusic.volume = 0;
-  endMusic.play().then(() => {
-    endMusic.pause();
-    endMusic.currentTime = 0;
-    endMusic.volume = 1;
-  }).catch(e => {
-    console.warn("Endmusic kunde inte förladdas:", e);
-  });
-
   document.getElementById("kazooSound").play();
+  // 👇 vänta lite innan vi tyst laddar endMusic
+  setTimeout(() => {
+    endMusic.volume = 0;        // tyst
+    endMusic.play().then(() => {
+      endMusic.pause();
+      endMusic.currentTime = 0;
+      endMusic.volume = 1;      // återställ volym
+    }).catch(e => {
+      console.warn("Endmusic kunde inte förladdas:", e);
+    });
+  }, 300); // ~0.3 sek fördröjning
+  
+  
   startBtn.disabled = true;
   startBtn.style.backgroundColor = "#888";
   pauseBtn.disabled = false;
