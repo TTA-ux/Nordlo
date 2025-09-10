@@ -39,7 +39,7 @@
       <p>- En får vara fotograf, övriga ska synas på bilden.</p>
       <p>- En person måste alltid utföra samma sak på alla bilder.</p>
       <p>- Laget ska lämna in minst 15 bilder.</p>
-      <p>- Uppgifter markerade med * = ALLA SKA VARA MED PÅ BILDEN!</p>
+      <p>- Uppgifter med * = ALLA SKA VARA MED PÅ BILDEN!</p>
       <p>- Laget måste vara tillbaka exakt 90 minuter efter startsignalen.</p>
       <p>- HÅLL TIDEN!.</p>
     </div>
@@ -62,7 +62,6 @@
       <button id="pauseBtn" disabled>Pausa 10 min 💤</button>
       <button id="resetTimerBtn">Förläng tiden ⏱️</button>
     </div>
-
     <ul id="checklist" style="display:none;"></ul>
   </div>
 
@@ -112,32 +111,38 @@
 
     // ---- Checklista ----
     const items = [
-     'En gruppbild i det minsta utrymmet ni får plats i', 
+      'En gruppbild i det minsta utrymmet ni får plats i.', 
       'Bygg något tillsammans (Fri tolkning. Gör en mänsklig pyramid, bygg ett sandslott eller hitta en byggarbetsplats.)', 
-      'En oväntad vänskap...!', 
+      'En oväntad vänskap...! 💞', 
       '*Alla i laget gör samma sak (tex Alla i luften, alla på huk, "walk like an egyptian...")', 
-      'En “olycka” på semestern😱', 
-      'Tema "Havet"', 
+      'En “olycka” på semestern 😱', 
+      'Tema "Havet" 🌊', 
       'Före & efter – ta två bilder bredvid varandra: en “seriös affärsbild” och en “semesterbild” på samma plats.', 
-      '*Skriv NORDLO i sanden på stranden och ta en gruppbild❤️', 
+      '*Skriv NORDLO i sanden på stranden och ta en gruppbild ❤️', 
       'Kläm ihop nåt jättestort', 
       'Det minsta och största ni hittar som ryms i en hand', 
-      '*Gör honnör framför en fontän!', 
+      '*Gör honnör framför en fontän! 🫡', 
       '*Asgarva! 🤣🤣🤣', 
       'Krama en palm! 🌴', 
-      '*Gör tummen upp framför Iglesia de San Román', 
-      'Turistfällan – posera framför något helt vardagligt (t.ex. en soptunna) som om det vore stadens största sevärdhet', 
+      '*Gör tummen upp framför Iglesia de San Román 👍', 
+      'Turistfällan – posera fint framför något helt vardagligt (t.ex. en sopbil) som om det vore stadens största sevärdhet', 
       'Alla är vända bort från kameran', 
       'Ta en gruppbild med en katt/hund/valfritt djur', 
       '*Peta på en motorcykel. En ska se glad ut, alla andra förskräckta', 
       '*Ramla! (roliga gatan fram)', 
       '*Ha en livlig argumentation', 
-      'Spela fotboll', 
+      'Spela fotboll ⚽', 
+      '*Men hur gullig du vara egentligen?',
       'Ät nåt litet, men gapa som att det är nåt jättestort', 
+      'Gå vilse!',
       '*Återskapa skivomslaget till Beatles - Abbey road🎵', 
+      '*Skapa oreda!',
+      '*Åk rutchkana! 🛝',
       'Tugga tuggummi och blås en stor bubbla', 
       'En glad sockerbagare 🧑‍🍳', 
-      '*Leta upp en udda hatt och ta en bild med den🎩'
+      'Fiska fisk! 🐟"',
+      '*Nämen! Geggamoja!',
+      '*Leta upp en udda hatt och ta en bild med den 🎩'
     ];
     
 
@@ -250,7 +255,7 @@ function startPause(){
   if(!timerStarted) return;
   if(localStorage.getItem(LS.pauseStart)) return;
   if(localStorage.getItem(LS.pausedOnce) === 'true') return;
-  if(!confirm("🚨⚠️VARNING!⚠️🚨\n\nDenna paus går att använda EN gång!\n\nÄr du säker?")) return;
+  if(!confirm("🚨⚠️VARNING!⚠️🚨\n\nDenna paus går att använda EN gång!\n\nÄr du HELT säker på att du vill pausa just nu??")) return;
 
   localStorage.setItem(LS.pausedOnce, 'true');
   pausedOnce = true;
@@ -276,7 +281,7 @@ function startPauseTick(){
   clearInterval(pauseTimer);
 
   let remaining = Math.ceil((getNum("pauseEnd") - getNow()) / 1000);
-  pauseTimerDisplay.innerText = "Paus " + formatTime(Math.max(0, remaining));
+  pauseTimerDisplay.innerText = "🥛 Vätskepaus " + formatTime(Math.max(0, remaining));
 
   pauseTimer = setInterval(()=>{
     remaining = Math.ceil((getNum("pauseEnd") - getNow()) / 1000);
