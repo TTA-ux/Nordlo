@@ -71,7 +71,7 @@
 
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 90;          
+    const TOTAL_MINUTES = 21;          
     const PAUSE_MINUTES = 10;
 
     // ---- Element ----
@@ -214,7 +214,7 @@
         let remainingSec = Math.max(0, Math.ceil((totalDuration / 1000) - elapsed + adjustmentSec));
 
         // Efter 1 minut -> dra av 15 min
-        if (elapsed >= 59 && !adjustedOnce) {
+        if (elapsed >= 60 && !adjustedOnce) {
           adjustedOnce = true;
           localStorage.setItem(LS.adjustedOnce, 'true');
           adjustmentSec -= 15 * 60; 
