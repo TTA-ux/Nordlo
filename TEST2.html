@@ -71,7 +71,7 @@
 
   <script>
     // ---- Konfig ----
-    const TOTAL_MINUTES = 21;          
+    const TOTAL_MINUTES = 17;          
     const PAUSE_MINUTES = 10;
 
     // ---- Element ----
@@ -239,28 +239,41 @@
     }
 
     // ---- Start ----
-    function startMain(){
-      if(timerStarted) return;
-      timerStarted = true;
-      document.getElementById("kazooSound").play();
-      startBtn.disabled = true;
-      startBtn.style.backgroundColor = "#888";
-      pauseBtn.disabled = false;
-      pauseBtn.style.backgroundColor = "#4CAF50";
-      showChecklist(true);
-      preventReload(true);
+// ---- Start ----
+function startMain(){
+  if(timerStarted) return;
+  timerStarted = true;
 
-      if(!localStorage.getItem(LS.timerStart)){
-        setNum(LS.timerStart, getNow());
-        setNum(LS.totalPaused, 0);
-        clr(LS.pauseStart);
-        clr(LS.adjustedOnce);
-        clr(LS.adjustmentSec);
-      }
+  const endMusic = document.getElementById("endMusic");
 
-      pausedOnce = localStorage.getItem(LS.pausedOnce) === 'true';
-      startMainTick();
-    }
+  // 👇 Förladda och "avspela tyst" endmusic
+  endMusic.play().then(() => {
+    endMusic.pause();
+    endMusic.currentTime = 0;
+  }).catch(e => {
+    console.warn("Endmusic kunde inte förladdas:", e);
+  });
+
+  document.getElementById("kazooSound").play();
+  startBtn.disabled = true;
+  startBtn.style.backgroundColor = "#888";
+  pauseBtn.disabled = false;
+  pauseBtn.style.backgroundColor = "#4CAF50";
+  showChecklist(true);
+  preventReload(true);
+
+  if(!localStorage.getItem(LS.timerStart)){
+    setNum(LS.timerStart, getNow());
+    setNum(LS.totalPaused, 0);
+    clr(LS.pauseStart);
+    clr(LS.adjustedOnce);
+    clr(LS.adjustmentSec);
+  }
+
+  pausedOnce = localStorage.getItem(LS.pausedOnce) === 'true';
+  startMainTick();
+}
+
 
     // ---- Paus ----
 function startPause(){
