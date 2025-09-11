@@ -215,7 +215,7 @@
         let remainingSec = Math.max(0, Math.ceil((totalDuration / 1000) - elapsed + adjustmentSec));
 
         // Efter 1 minut -> dra av 15 min
-        if (elapsed >= 10 && !adjustedOnce) {
+        if (elapsed >= 480 && !adjustedOnce) {
           adjustedOnce = true;
           localStorage.setItem(LS.adjustedOnce, 'true');
           adjustmentSec -= 15 * 60; 
