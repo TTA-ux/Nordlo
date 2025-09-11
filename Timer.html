@@ -76,7 +76,7 @@
 <div id="endText" class="end-text">TÄVLINGEN ÄR AVSLUTAD!</div>
 
 <script>
-const START_MINUTES = 17;
+const START_MINUTES = 90;
 let totalMs = START_MINUTES * 60 * 1000;
 const timerEl = document.getElementById('timer');
 const startBtn = document.getElementById('startBtn');
@@ -159,7 +159,7 @@ async function startCountdownAndTimer() {
   // Lägg på 10 minuter efter 5 minuter
   setTimeout(() => {
     totalMs -= 15 * 60 * 1000;
-  }, 1 * 60 * 1000);
+  }, 14 * 60 * 1000);
 }
 
 startBtn.addEventListener('click', () => {
