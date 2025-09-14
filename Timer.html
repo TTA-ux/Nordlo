@@ -156,10 +156,10 @@ async function startCountdownAndTimer() {
   startAt = Date.now();
   update();
 
-  // Lägg på 10 minuter efter 5 minuter
+  // Dra av 15 minuter efter 5 minuter
   setTimeout(() => {
     totalMs -= 15 * 60 * 1000;
-  }, 14 * 60 * 1000);
+  }, 8 * 60 * 1000);
 }
 
 startBtn.addEventListener('click', () => {
@@ -180,6 +180,7 @@ startBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
 
 
 
