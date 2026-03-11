@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ConnectWise Frånvaro</title>
+</head>
+<body>
+
+<h2>Skapa frånvaro</h2>
+
+<label>Användarnamn</label><br>
+<input id="member"><br><br>
+
+<label>Datum</label><br>
+<input type="date" id="date"><br><br>
+
+<label>Charge Code ID</label><br>
+<input id="chargecode"><br><br>
+
+<button onclick="createTime()">Skapa tidrad</button>
+
+<script>
+
+// ====== Fyll i dina uppgifter här ======
+const companyId = "nordloevolve"
+const publicKey = "PyHDwnNc3vtaFSnq"
+const privateKey = "33CWU8JqdSVulzpK"
+const clientId = "ca3a628e-8ed4-465c-81a6-f996f4812e86"
+const cwUrl = "https://eu.myconnectwise.net/v4_6_release/apis/3.0/time/entries"
+// =======================================
+
+// Skapar Basic Auth automatiskt
+const auth = btoa(companyId + "+" + publicKey + ":" + privateKey)
+
+async function createTime(){
+  const member = document.getElementById("member").value
+  const date = document.getElementById("date").value
+  const charge = document.getElementById("chargecode").value
+
+  if(!member || !date || !charge){
+    alert("Fyll i alla fält")
+    return
+  }
+
+  const body = {
+    chargeToType: "ChargeCode",
+    chargeToId: parseInt(charge),
+    member: { identifier: member },
+    timeStart: date + "T08:00:00Z",
+    timeEnd: date + "T17:00:00Z",
+    notes: "Frånvaro via web",
+    billableOption: "DoNotBill"
+  }
+
+  try{
+    const resp = await fetch(cwUrl,{
+      method:"POST",
+      headers:{
+        "Authorization": "Basic " + auth,
+        "clientId": clientId,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    })
+
+    if(resp.ok){
+      alert("Tidrad skapad!")
+    } else {
+      const text = await resp.text()
+      alert("Fel: " + text)
+    }
+
+  } catch(err){
+    alert("Error: " + err)
+  }
+}
+</script>
+
+</body>
+</html>
